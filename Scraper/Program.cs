@@ -1,21 +1,23 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Scraper.ConcreteClasses;
 using Scraper.Contracts;
 using Scraper.Extensions;
 using Scraper.Services;
 
-var builder = Host.CreateApplicationBuilder(args);
+var host = Host.CreateDefaultBuilder()
+    .ConfigureServices((_, services) =>
+    {
+        services
+            .AddStoreServices()
+            .AddSingleton<StoreMatcherService>()
+            .AddSingleton<IProductStorage, JsonProductStorageService>()
+            .AddSingleton<ProductSerializer>();
+    })
+    .Build();
 
-builder.Services
-    .AddStoreServices()
-    .AddSingleton<StoreMatcherService>()
-    .AddSingleton<IProductStorage, JsonProductStorageService>()
-    .AddSingleton<ProductSerializer>();
-
-var services = builder.Build().Services;
+using var serviceScope = host.Services.CreateScope();
+var services = serviceScope.ServiceProvider;
 
 // Get Services
 var storeMatcher = services.GetRequiredService<StoreMatcherService>();
