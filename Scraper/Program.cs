@@ -12,7 +12,9 @@ var host = Host.CreateDefaultBuilder()
             .AddStoreServices()
             .AddSingleton<StoreMatcherService>()
             .AddSingleton<IProductStorage, JsonProductStorageService>()
-            .AddSingleton<ProductSerializer>();
+            .AddSingleton<ProductSerializer>()
+            .AddSingleton<ProductService>()
+            .AddSingleton<UrlExtractorService>();
     })
     .Build();
 
@@ -20,29 +22,9 @@ using var serviceScope = host.Services.CreateScope();
 var services = serviceScope.ServiceProvider;
 
 // Get Services
-var storeMatcher = services.GetRequiredService<StoreMatcherService>();
-var productStorage = services.GetRequiredService<IProductStorage>();
+var productService = services.GetRequiredService<ProductService>();
 
-// Determine store.
-const string url = "https://www.ah.nl/producten/product/wi61758/optimel-drinkyoghurt-framboos";
-var store = storeMatcher.GetStoreFromUrl(url);
-
-if(store is not null)
-{
-    Console.WriteLine($"URL matches store: {store.StoreName}");
-    var id = StoreMatcherService.GetProductIdFromUrl(store, url);
-    Console.WriteLine($"Id extracted from url: {id}");
-    if (id is null)
-        return;
-
-    var productScraper = store.GetProductScraper();
-    var product = await productScraper.GetProductFromId(id);
-    if (product is null)
-        return;
-
-    await productStorage.Store(product);
-}
-else
-{
-    Console.WriteLine("URL does not match any store");
-}
+// Process product.
+const string url = @"Coca-Cola Regular #AlbertHeijn
+www.ah.nl/producten/product/wi2800";
+await productService.AddProductFromMessage(url);

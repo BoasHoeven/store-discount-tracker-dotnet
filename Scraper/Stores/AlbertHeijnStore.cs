@@ -4,7 +4,7 @@ using Scraper.Contracts;
 
 namespace Scraper.Stores;
 
-public class AlbertHeijn : IStore
+public class AlbertHeijnStore : IStore
 {
     public string StoreName => "Albert Heijn";
     public IEnumerable<Regex> StoreMatchRegex => new Regex[]

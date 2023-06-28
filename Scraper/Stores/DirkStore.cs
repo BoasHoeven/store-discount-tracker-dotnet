@@ -3,7 +3,7 @@ using Scraper.Contracts;
 
 namespace Scraper.Stores;
 
-public class Dirk : IStore
+public class DirkStore : IStore
 {
     public IProductScraper GetProductScraper()
     {
