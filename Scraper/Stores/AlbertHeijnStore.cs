@@ -13,7 +13,7 @@ public class AlbertHeijnStore : IStore
     };
     public IEnumerable<Regex> ExtractProductIdRegex => new Regex[]
     {
-        new(@"\/product\/wi(\d+)\/")
+        new(@"\/product\/wi(\d+)")
     };
     public IProductScraper GetProductScraper()
     {

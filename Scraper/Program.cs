@@ -25,6 +25,5 @@ var services = serviceScope.ServiceProvider;
 var productService = services.GetRequiredService<ProductService>();
 
 // Process product.
-const string url = @"Coca-Cola Regular #AlbertHeijn
-www.ah.nl/producten/product/wi2800";
+const string url = "https://www.ah.nl/producten/product/wi2800";
 await productService.AddProductFromMessage(url);
