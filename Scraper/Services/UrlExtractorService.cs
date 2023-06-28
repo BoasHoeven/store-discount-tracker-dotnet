@@ -6,7 +6,7 @@ public partial class UrlExtractorService
 {
     private static readonly Regex UrlRegex = MyRegex();
     
-    public static string? ExtractUrlFromMessage(string message)
+    public string? ExtractUrlFromMessage(string message)
     {
         var match = UrlRegex.Match(message);
         return match.Success ? match.Value : null;

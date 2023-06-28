@@ -24,6 +24,6 @@ var services = serviceScope.ServiceProvider;
 // Get Services
 var productService = services.GetRequiredService<ProductService>();
 
-// Process product.
-const string url = "https://www.ah.nl/producten/product/wi2800";
+// Process product
+const string url = "https://www.dirk.nl/boodschappen/dranken-sap-koffie-thee/frisdranken/coca-cola-regular/68538";
 await productService.AddProductFromMessage(url);
