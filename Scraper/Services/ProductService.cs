@@ -20,29 +20,34 @@ public class ProductService
         var url = urlExtractorService.ExtractUrlFromMessage(message);
         if(url is null)
         {
-            Console.WriteLine("No valid URL was found in the message.");
+            Console.WriteLine($"{message} did not contain a valid url.");
             return;
         }
         
         var store = storeMatcher.GetStoreFromUrl(url);
-        if(store is not null)
+        if (store is null)
         {
-            Console.WriteLine($"URL matches store: {store.StoreName}");
-            var id = StoreMatcherService.GetProductIdFromUrl(store, url);
-            Console.WriteLine($"Id extracted from url: {id}");
-            if (id is null)
-                return;
-
-            var productScraper = store.GetProductScraper();
-            var product = await productScraper.GetProductFromId(id);
-            if (product is null)
-                return;
-
-            await productStorage.Store(product);
+            Console.WriteLine($"{url} did not match any store");
+            return;
         }
-        else
+        Console.WriteLine($"URL matches store: {store.StoreName}");
+        
+        var id = StoreMatcherService.GetProductIdFromUrl(store, url);
+        Console.WriteLine($"{id} was extracted from url: {url}");
+        if (id is null)
+            return;
+        
+        if (await productStorage.Exists(id, store.StoreName))
         {
-            Console.WriteLine("URL does not match any store");
+            Console.WriteLine($"Product with ID {id} from {store.StoreName} already exists in storage.");
+            return;
         }
+        
+        var productScraper = store.GetProductScraper();
+        var product = await productScraper.GetProductFromId(id);
+        if (product is null)
+            return;
+
+        await productStorage.Store(product);
     }
 }

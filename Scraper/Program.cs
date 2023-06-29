@@ -14,7 +14,12 @@ var host = Host.CreateDefaultBuilder()
             .AddSingleton<IProductStorage, JsonProductStorageService>()
             .AddSingleton<ProductSerializer>()
             .AddSingleton<ProductService>()
-            .AddSingleton<UrlExtractorService>();
+            .AddSingleton<UrlExtractorService>()
+            .AddHttpClient("AlbertHeijnClient", c =>
+            {
+                c.BaseAddress = new Uri("https://ah.nl");
+            }).SetHandlerLifetime(TimeSpan.FromMinutes(2)); // TODO add dirk store httpclient
+
     })
     .Build();
 
@@ -25,5 +30,5 @@ var services = serviceScope.ServiceProvider;
 var productService = services.GetRequiredService<ProductService>();
 
 // Process product
-const string url = "https://www.dirk.nl/boodschappen/dranken-sap-koffie-thee/frisdranken/coca-cola-regular/68538";
+const string url = "https://www.ah.nl/producten/product/wi135674/ah-magnetron-popcorn-zout";
 await productService.AddProductFromMessage(url);

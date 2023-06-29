@@ -16,6 +16,15 @@ public static class StoreServices
             services.AddSingleton(typeof(IStore), type);
         }
 
+        var scrapers = AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(s => s.GetTypes())
+            .Where(p => typeof(IStoreScraper).IsAssignableFrom(p) && !p.IsInterface);
+        
+        foreach (var type in scrapers)
+        {
+            services.AddSingleton(typeof(IStoreScraper), type);
+        }
+        
         return services;
     }
 }

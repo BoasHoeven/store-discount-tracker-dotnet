@@ -3,12 +3,11 @@ using Scraper.Contracts;
 
 namespace Scraper.Scrapers;
 
-public class DirkScraper : IProductScraper
+public class DirkScraper : IStoreScraper
 {
-    
     public async Task<IProduct?> GetProductFromId(string id)
     {
-        IProduct placeholderProduct = new Product(id, "test", "Dirk")
+        IProduct placeholderProduct = new Product(id, "test", "1 L", "Dirk")
         {
             AddedBy = -1,
             Created = DateTime.UtcNow,
