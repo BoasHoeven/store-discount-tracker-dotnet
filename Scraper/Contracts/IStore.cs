@@ -4,8 +4,8 @@ namespace Scraper.Contracts;
 
 public interface IStore
 {
+    IStoreScraper Scraper { get; }
     string StoreName { get; }
-    IStoreScraper GetProductScraper();
     IEnumerable<Regex> StoreMatchRegex { get; }
     IEnumerable<Regex> ExtractProductIdRegex { get; }
 }

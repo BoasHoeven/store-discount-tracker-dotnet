@@ -34,6 +34,5 @@ public class AlbertHeijnScraper : IStoreScraper
         };
 
         return product;
-
     }
 }

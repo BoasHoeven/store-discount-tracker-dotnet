@@ -6,14 +6,13 @@ namespace Scraper.Stores;
 
 public class AlbertHeijnStore : IStore
 {
-    private readonly IStoreScraper scraper;
+    public IStoreScraper Scraper { get; }
+    
     public AlbertHeijnStore(IEnumerable<IStoreScraper> scrapers)
     {
-        scraper = scrapers.FirstOrDefault(x => x.GetType() == typeof(AlbertHeijnScraper)) ?? throw new InvalidOperationException();
+        Scraper = scrapers.FirstOrDefault(x => x.GetType() == typeof(AlbertHeijnScraper)) ?? throw new InvalidOperationException();
     }
-    
     public string StoreName => "Albert Heijn";
-    public IStoreScraper GetProductScraper() => scraper;
     public IEnumerable<Regex> StoreMatchRegex => new Regex[]
     {
         new(@"^(http:\/\/www\.ah\.nl|https:\/\/www\.ah\.nl|www\.ah\.nl)")

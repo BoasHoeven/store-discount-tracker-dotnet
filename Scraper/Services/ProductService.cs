@@ -43,8 +43,7 @@ public class ProductService
             return;
         }
         
-        var productScraper = store.GetProductScraper();
-        var product = await productScraper.GetProductFromId(id);
+        var product = await store.Scraper.GetProductFromId(id);
         if (product is null)
             return;
 
