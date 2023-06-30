@@ -31,7 +31,7 @@ public class AlbertHeijnScraper : IStoreScraper
         return product;
     }
 
-    public async Task<bool> IsOnDiscount(IProduct product)
+    public async Task<ProductDiscount?> IsOnDiscount(IProduct product)
     {
         if (product.StoreName != "Albert Heijn")
         {
@@ -39,12 +39,23 @@ public class AlbertHeijnScraper : IStoreScraper
         }
 
         var productDetails = await GetProductDetailsFromId(product.Id);
-        if (productDetails == null) return false;
-        
+        if (productDetails?.discount is null) return null;
+
         var discount = productDetails.discount;
         var dutchTimeZone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
         var dutchTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, dutchTimeZone);
-        return dutchTime >= discount.startDate && dutchTime <= discount.endDate;
+        var isOnDiscount = dutchTime >= discount.startDate && dutchTime <= discount.endDate;
+
+        if (!isOnDiscount)
+            return null;
+
+        return new ProductDiscount
+        {
+            Product = product,
+            NewPrice = productDetails.price.now,
+            OldPrice = productDetails.price.now, // TODO set this correctly
+            TypeOfDiscount = productDetails.shield?.text ?? ""
+        };
     }
 
     private async Task<ProductDetails?> GetProductDetailsFromId(string id)

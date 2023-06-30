@@ -49,4 +49,9 @@ public class ProductService
 
         await productStorage.Store(product);
     }
+
+    public IEnumerable<IProduct> GetAllProducts()
+    {
+        return productStorage.GetAllProducts();
+    }
 }

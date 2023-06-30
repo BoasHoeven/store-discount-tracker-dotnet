@@ -20,7 +20,7 @@ public class DirkScraper : IStoreScraper
         return placeholderProduct;
     }
 
-    public Task<bool> IsOnDiscount(IProduct product)
+    public Task<ProductDiscount?> IsOnDiscount(IProduct product)
     {
         if (product.StoreName != "Dirk")
         {

@@ -37,4 +37,6 @@ public class JsonProductStorageService : IProductStorage
         var existingProduct = productRepository.FindProductByIdAndStore(productId, storeName);
         return Task.FromResult(existingProduct is not null);
     }
+
+    public IEnumerable<IProduct> GetAllProducts() => productRepository.GetProducts();
 }

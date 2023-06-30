@@ -14,7 +14,8 @@ public sealed class ProductDetails
 {
     public string title { get; set; }
     public Price price { get; set; }
-    public Discount discount { get; set; }
+    public Discount? discount { get; set; }
+    public Shield? shield { get; set; }
 }
 
 public sealed class Price
