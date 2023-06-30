@@ -12,7 +12,6 @@ public class DirkStore : IStore
     {
         Scraper = scrapers.FirstOrDefault(x => x.GetType() == typeof(DirkScraper)) ?? throw new InvalidOperationException();
     }
-    
     public string StoreName => "Dirk";
     public IEnumerable<Regex> StoreMatchRegex => new Regex[]
     {

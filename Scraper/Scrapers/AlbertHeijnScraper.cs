@@ -14,18 +14,13 @@ public class AlbertHeijnScraper : IStoreScraper
         
         client = clientFactory.CreateClient("AlbertHeijnClient");
     }
-    
+
     public async Task<IProduct?> GetProductFromId(string id)
     {
-        var response = await client.GetAsync($"zoeken/api/products/product?webshopId={id}");
-
-        if (!response.IsSuccessStatusCode) return null;
-        var content = await response.Content.ReadAsStringAsync();
-
-        var root = JsonSerializer.Deserialize<RootObject>(content);
-        var productDetails = root?.card.products.FirstOrDefault();
+        var productDetails = await GetProductDetailsFromId(id);
 
         if (productDetails == null) return null;
+        
         IProduct product = new Product(id, productDetails.title, productDetails.price.unitSize,"Albert Heijn")
         {
             Price = productDetails.price.now,
@@ -34,5 +29,35 @@ public class AlbertHeijnScraper : IStoreScraper
         };
 
         return product;
+    }
+
+    public async Task<bool> IsOnDiscount(IProduct product)
+    {
+        if (product.StoreName != "Albert Heijn")
+        {
+            throw new ArgumentException("Product of another store was used");
+        }
+
+        var productDetails = await GetProductDetailsFromId(product.Id);
+        if (productDetails == null) return false;
+        
+        var discount = productDetails.discount;
+        var dutchTimeZone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
+        var dutchTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, dutchTimeZone);
+        return dutchTime >= discount.startDate && dutchTime <= discount.endDate;
+    }
+
+    private async Task<ProductDetails?> GetProductDetailsFromId(string id)
+    {
+        var response = await client.GetAsync($"zoeken/api/products/product?webshopId={id}");
+
+        if (!response.IsSuccessStatusCode) return null;
+        
+        var content = await response.Content.ReadAsStringAsync();
+
+        var root = JsonSerializer.Deserialize<RootObject>(content);
+        var productDetails = root?.card.products.FirstOrDefault();
+
+        return productDetails;
     }
 }

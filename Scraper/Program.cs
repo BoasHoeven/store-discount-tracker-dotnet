@@ -30,5 +30,5 @@ var services = serviceScope.ServiceProvider;
 var productService = services.GetRequiredService<ProductService>();
 
 // Process product
-const string url = "https://www.ah.nl/producten/product/wi135674/ah-magnetron-popcorn-zout";
+const string url = "https://www.ah.nl/producten/product/wi177570/lipton-ice-tea-sparkling-original";
 await productService.AddProductFromMessage(url);

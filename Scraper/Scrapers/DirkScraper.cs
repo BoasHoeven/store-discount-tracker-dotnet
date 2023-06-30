@@ -1,5 +1,6 @@
 using Scraper.ConcreteClasses;
 using Scraper.Contracts;
+using Scraper.Stores;
 
 namespace Scraper.Scrapers;
 
@@ -17,5 +18,15 @@ public class DirkScraper : IStoreScraper
         };
 
         return placeholderProduct;
+    }
+
+    public Task<bool> IsOnDiscount(IProduct product)
+    {
+        if (product.StoreName != "Dirk")
+        {
+            throw new ArgumentException($"Unsupported store: {product.StoreName}");
+        }
+
+        throw new NotImplementedException();
     }
 }
