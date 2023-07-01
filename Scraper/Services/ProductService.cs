@@ -48,6 +48,7 @@ public class ProductService
             return;
 
         await productStorage.Store(product);
+        Console.WriteLine("Product with ID {id} has been added.");
     }
 
     public IEnumerable<IProduct> GetAllProducts()

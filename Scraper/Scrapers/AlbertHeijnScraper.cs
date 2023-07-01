@@ -23,7 +23,7 @@ public class AlbertHeijnScraper : IStoreScraper
         
         IProduct product = new Product(id, productDetails.title, productDetails.price.unitSize,"Albert Heijn")
         {
-            Price = productDetails.price.now,
+            Price = productDetails.price.was ?? productDetails.price.now,
             AddedBy = -1,
             LastUpdated = DateTime.UtcNow
         };
@@ -53,7 +53,7 @@ public class AlbertHeijnScraper : IStoreScraper
         {
             Product = product,
             NewPrice = productDetails.price.now,
-            OldPrice = productDetails.price.now, // TODO set this correctly
+            OldPrice = productDetails.price.was,
             TypeOfDiscount = productDetails.shield?.text ?? ""
         };
     }
@@ -64,9 +64,9 @@ public class AlbertHeijnScraper : IStoreScraper
 
         if (!response.IsSuccessStatusCode) return null;
         
-        var content = await response.Content.ReadAsStringAsync();
+        var jsonResponse = await response.Content.ReadAsStringAsync();
 
-        var root = JsonSerializer.Deserialize<RootObject>(content);
+        var root = JsonSerializer.Deserialize<RootObject>(jsonResponse);
         var productDetails = root?.card.products.FirstOrDefault();
 
         return productDetails;

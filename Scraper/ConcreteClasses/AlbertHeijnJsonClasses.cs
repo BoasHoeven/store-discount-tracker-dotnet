@@ -21,6 +21,7 @@ public sealed class ProductDetails
 public sealed class Price
 {
     public decimal now { get; set; }
+    public decimal? was { get; set; }
     public string unitSize { get; set; }
 }
 
