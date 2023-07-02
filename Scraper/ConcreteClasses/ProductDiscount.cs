@@ -7,5 +7,5 @@ public class ProductDiscount
     public IProduct Product { get; set; }
     public decimal? OldPrice { get; set; }
     public decimal NewPrice { get; set; }
-    public string TypeOfDiscount { get; set; }
+    public string DiscountMessage { get; set; }
 }

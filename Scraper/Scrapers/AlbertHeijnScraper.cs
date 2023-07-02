@@ -35,7 +35,7 @@ public class AlbertHeijnScraper : IStoreScraper
     {
         if (product.StoreName != "Albert Heijn")
         {
-            throw new ArgumentException("Product of another store was used");
+            throw new ArgumentException($"Product and store mismatch. Product: {product.StoreName} and Store: Albert Heijn");
         }
 
         var productDetails = await GetProductDetailsFromId(product.Id);
@@ -54,7 +54,7 @@ public class AlbertHeijnScraper : IStoreScraper
             Product = product,
             NewPrice = productDetails.price.now,
             OldPrice = productDetails.price.was,
-            TypeOfDiscount = productDetails.shield?.text ?? ""
+            DiscountMessage = productDetails.shield?.text ?? ""
         };
     }
 

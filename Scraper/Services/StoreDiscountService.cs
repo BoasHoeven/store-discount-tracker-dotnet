@@ -1,4 +1,3 @@
-using System.Collections;
 using Scraper.ConcreteClasses;
 using Scraper.Contracts;
 

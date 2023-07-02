@@ -1,6 +1,5 @@
 using Scraper.ConcreteClasses;
 using Scraper.Contracts;
-using Scraper.Stores;
 
 namespace Scraper.Scrapers;
 
