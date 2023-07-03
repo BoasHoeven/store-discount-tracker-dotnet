@@ -1,8 +1,11 @@
 using Microsoft.Extensions.Logging;
+using Scraper.Contracts;
+using Scraper.Services;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.ReplyMarkups;
 using TelegramBot.Enums;
@@ -15,11 +18,17 @@ public class UpdateHandler : IUpdateHandler
 
     private readonly ITelegramBotClient botClient;
     private readonly ILogger<UpdateHandler> logger;
+    private readonly ProductService productService;
 
-    public UpdateHandler(ITelegramBotClient botClient, ILogger<UpdateHandler> logger)
+    public UpdateHandler(ITelegramBotClient botClient, ILogger<UpdateHandler> logger, ProductService productService)
     {
+        ArgumentNullException.ThrowIfNull(botClient);
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(productService);
+        
         this.botClient = botClient;
         this.logger = logger;
+        this.productService = productService;
     }
 
     public async Task HandleUpdateAsync(ITelegramBotClient _, Update update, CancellationToken cancellationToken)
@@ -42,7 +51,22 @@ public class UpdateHandler : IUpdateHandler
 
         await handler;
     }
+    
+    private static string FormatProductsByStore(IEnumerable<IProduct> products)
+    {
+        var productGroups = products.GroupBy(p => p.StoreName);
+        var storeProductStrings = new List<string>();
 
+        foreach (var group in productGroups)
+        {
+            var productNames = group.Select(p => p.ToString());
+            var storeProductsString = $"{group.Key}:\n{string.Join("\n", productNames)}";
+            storeProductStrings.Add(storeProductsString);
+        }
+
+        return string.Join("\n\n", storeProductStrings);
+    }
+    
     private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
     {
         logger.LogInformation("Receive message type: {MessageType}", message.Type);
@@ -54,7 +78,7 @@ public class UpdateHandler : IUpdateHandler
 
         var state = chatStates[message.Chat.Id];
 
-        if (state == ConversationState.WaitingForProductUrl)
+        if (state != ConversationState.Normal)
         {
             await HandleConversationState(message, cancellationToken);
         }
@@ -62,11 +86,24 @@ public class UpdateHandler : IUpdateHandler
         {
             var action = messageText.Split(' ')[0] switch
             {
+                "/list" => ListProducts(botClient, message, cancellationToken),
                 "/add" => Add(botClient, message, cancellationToken),
+                "/remove" => Remove(botClient, message, cancellationToken),
                 _      => Usage(botClient, message, cancellationToken)
             };
             var sentMessage = await action;
             logger.LogInformation("The message was sent with id: {SentMessageId}", sentMessage.MessageId);
+        }
+
+        async Task<Message> ListProducts(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+        {
+            var products = productService.GetAllProducts();
+            var formattedProducts = FormatProductsByStore(products);
+
+            return await botClient.SendTextMessageAsync(
+                chatId: message.Chat.Id,
+                text: string.IsNullOrEmpty(formattedProducts) ? "No products to show." : formattedProducts,
+                cancellationToken: cancellationToken);
         }
         
         async Task<Message> Add(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
@@ -78,11 +115,23 @@ public class UpdateHandler : IUpdateHandler
                 text: "Send me the url of the product you want to add",
                 cancellationToken: cancellationToken);
         }
+        
+        async Task<Message> Remove(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+        {
+            chatStates[message.Chat.Id] = ConversationState.WaitingForRemoveProductName;
+
+            return await botClient.SendTextMessageAsync(
+                chatId: message.Chat.Id,
+                text: "Send me the name of the product you want to remove.",
+                cancellationToken: cancellationToken);
+        }
 
         static async Task<Message> Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             const string usage = "Usage:\n" +
-                                 "/add - add a product from an url\n";
+                                 "/list - display products\n" +
+                                 "/add - add a product from an url\n" +
+                                 "/remove - remove a product by its name or part of its name";
                                  // "/keyboard    - send custom keyboard\n" +
                                  // "/remove      - remove custom keyboard\n" +
                                  // "/photo       - send a photo\n" +
@@ -100,17 +149,36 @@ public class UpdateHandler : IUpdateHandler
     // Process Inline Keyboard callback data
     private async Task BotOnCallbackQueryReceived(CallbackQuery callbackQuery, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
+        if (callbackQuery.Data!.StartsWith("remove_"))
+        {
+            var parts = callbackQuery.Data.Split('_', 3);
+            if (parts.Length < 3) return; // Invalid callback data
 
-        await botClient.AnswerCallbackQueryAsync(
-            callbackQueryId: callbackQuery.Id,
-            text: $"Received {callbackQuery.Data}",
-            cancellationToken: cancellationToken);
+            var productId = parts[1];
+            var storeName = parts[2];
 
-        await botClient.SendTextMessageAsync(
-            chatId: callbackQuery.Message!.Chat.Id,
-            text: $"Received {callbackQuery.Data}",
-            cancellationToken: cancellationToken);
+            var removedProduct = await productService.RemoveProduct(productId, storeName);
+            
+            var resultMessage = removedProduct != null 
+                ? $"Product '{removedProduct}' has been successfully removed."
+                : $"Failed to remove product with ID {productId} from {storeName}. It may not exist in the database.";
+
+            await botClient.SendTextMessageAsync(chatId: callbackQuery.Message!.Chat.Id,
+                text: resultMessage,
+                cancellationToken: cancellationToken);
+        }
+        
+        // logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
+
+        // await botClient.AnswerCallbackQueryAsync(
+        //     callbackQueryId: callbackQuery.Id,
+        //     text: $"Received {callbackQuery.Data}",
+        //     cancellationToken: cancellationToken);
+        //
+        // await botClient.SendTextMessageAsync(
+        //     chatId: callbackQuery.Message!.Chat.Id,
+        //     text: $"Received {callbackQuery.Data}",
+        //     cancellationToken: cancellationToken);
     }
     
     private async Task HandleConversationState(Message message, CancellationToken cancellationToken)
@@ -120,19 +188,40 @@ public class UpdateHandler : IUpdateHandler
         switch(state)
         {
             case ConversationState.WaitingForProductUrl:
-                var url = message.Text;
-
-                // Logic to add a product here
+                var addProductMessage = await productService.AddProductFromMessage(message.Text!);
                 
-
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id,
-                    text: "Product was added!",
-                    cancellationToken: cancellationToken);
+                    text: addProductMessage,
+                    cancellationToken: cancellationToken,
+                    parseMode: ParseMode.Markdown);
 
                 chatStates[message.Chat.Id] = ConversationState.Normal;
                 break;
-            // You can handle other conversation states here
+            case ConversationState.WaitingForRemoveProductName:
+                var productMatches = productService.GetProductsByName(message.Text!).Take(6).ToList();
+            
+                if (!productMatches.Any())
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: message.Chat.Id,
+                        text: "No product(s) found with the given name",
+                        cancellationToken: cancellationToken,
+                        parseMode: ParseMode.Markdown);
+                    break;
+                }
+
+                var inlineKeyboard = new InlineKeyboardMarkup(productMatches.Select(product =>
+                    InlineKeyboardButton.WithCallbackData(product.ToString()!, $"remove_{product.Id}_{product.StoreName}")).ToArray());
+
+                await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id,
+                    text: "Choose a product to remove:",
+                    replyMarkup: inlineKeyboard,
+                    cancellationToken: cancellationToken);
+                
+                chatStates[message.Chat.Id] = ConversationState.Normal;
+                break;
             case ConversationState.Normal:
             default:
                 break;

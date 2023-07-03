@@ -1,22 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Scraper.ConcreteClasses;
-using Scraper.Contracts;
 using Scraper.Extensions;
 using Scraper.Services;
 
 var host = Host.CreateDefaultBuilder()
     .ConfigureServices((_, services) =>
     {
-        services
-            .AddStoreServices()
-            .AddAlbertHeijnStoreServices()
-            .AddTransient<StoreMatcherService>()
-            .AddTransient<StoreDiscountService>()
-            .AddTransient<IProductStorage, JsonProductStorageService>()
-            .AddScoped<ProductSerializer>()
-            .AddTransient<ProductService>()
-            .AddTransient<UrlExtractorService>();
+        services.AddScraperServices();
     })
     .Build();
 

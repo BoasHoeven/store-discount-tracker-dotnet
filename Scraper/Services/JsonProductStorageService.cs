@@ -32,11 +32,28 @@ public class JsonProductStorageService : IProductStorage
         return true;
     }
 
-    public Task<bool> Exists(string productId, string storeName)
+    public Task<IProduct?> Exists(string productId, string storeName)
     {
         var existingProduct = productRepository.FindProductByIdAndStore(productId, storeName);
-        return Task.FromResult(existingProduct is not null);
+        
+        return Task.FromResult<IProduct>(existingProduct);
     }
 
     public IEnumerable<IProduct> GetAllProducts() => productRepository.GetProducts();
+    public IEnumerable<IProduct> GetProductsByName(string message)
+    {
+        return productRepository.GetProductsByName(message);
+    }
+
+    public async Task<IProduct?> RemoveProduct(string productId, string storeName)
+    {
+        var product = productRepository.FindProductByIdAndStore(productId, storeName);
+
+        if (product is null) return null;
+        productRepository.RemoveProduct(product);
+        var updatedProducts = productSerializer.SerializeProducts(productRepository.GetProducts());
+        await File.WriteAllTextAsync(FileName, updatedProducts);
+
+        return product;
+    }
 }

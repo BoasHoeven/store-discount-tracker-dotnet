@@ -15,44 +15,52 @@ public class ProductService
         this.urlExtractorService = urlExtractorService;
     }
 
-    public async Task AddProductFromMessage(string message)
+    public async Task<string> AddProductFromMessage(string message)
     {
         var url = urlExtractorService.ExtractUrlFromMessage(message);
-        if(url is null)
+        if (url is null)
         {
-            Console.WriteLine($"{message} did not contain a valid url.");
-            return;
+            return $"{message} did not contain a valid url.";
         }
-        
+    
         var store = storeMatcher.GetStoreFromUrl(url);
         if (store is null)
         {
-            Console.WriteLine($"{url} did not match any store");
-            return;
+            return $"{url} did not match any store";
         }
         Console.WriteLine($"URL matches store: {store.StoreName}");
-        
+    
         var id = StoreMatcherService.GetProductIdFromUrl(store, url);
         Console.WriteLine($"{id} was extracted from url: {url}");
         if (id is null)
-            return;
+            return $"No product id found in the url: {url}";
         
-        if (await productStorage.Exists(id, store.StoreName))
+        var existingProduct = await productStorage.Exists(id, store.StoreName);
+        if (existingProduct is not null)
         {
-            Console.WriteLine($"Product with ID {id} from {store.StoreName} already exists in storage.");
-            return;
+            return $"*{existingProduct}* from *{store.StoreName}* has already been added.";
         }
-        
+    
         var product = await store.Scraper.GetProductFromId(id);
         if (product is null)
-            return;
-
+            return $"Could not scrape a product with id: {id} from store: {store.StoreName}";
+    
         await productStorage.Store(product);
-        Console.WriteLine("Product with ID {id} has been added.");
+        return $"Product {product} has been added.";
     }
 
     public IEnumerable<IProduct> GetAllProducts()
     {
         return productStorage.GetAllProducts();
+    }
+
+    public IEnumerable<IProduct> GetProductsByName(string message)
+    {
+        return productStorage.GetProductsByName(message);
+    }
+
+    public Task<IProduct?> RemoveProduct(string productId, string storeName)
+    {
+        return productStorage.RemoveProduct(productId, storeName);
     }
 }

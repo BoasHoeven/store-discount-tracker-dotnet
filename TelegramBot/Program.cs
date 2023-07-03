@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Scraper.Extensions;
 using Telegram.Bot;
 using TelegramBot.Configuration;
 using TelegramBot.Extensions;
@@ -8,6 +9,8 @@ using TelegramBot.Services;
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
+        services.AddScraperServices();
+        
         services.Configure<BotConfiguration>(
             context.Configuration.GetSection(BotConfiguration.Configuration));
         

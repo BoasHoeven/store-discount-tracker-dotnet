@@ -42,4 +42,9 @@ public class Product : IProduct
         UnitSize = unitSize;
         Created = DateTime.UtcNow;
     }
+    
+    public override string ToString()
+    {
+        return $"{Name} ({UnitSize})";
+    }
 }

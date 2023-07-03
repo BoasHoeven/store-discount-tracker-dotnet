@@ -2,9 +2,10 @@ namespace Scraper.Contracts;
 
 public interface IProduct
 {
-    string Id { get; init; }
-    string StoreName { get; init; }
-    string Name { get; init; }
+    string Id { get; }
+    string StoreName { get; }
+    string Name { get; }
+    string UnitSize { get; set; }
     decimal Price { get; set; }
     DateTime Created { get; init; }
     DateTime LastUpdated { get; set; }
