@@ -70,7 +70,9 @@ public sealed class AlbertHeijnScraper : IStoreScraper
             Product = product,
             NewPrice = productDetails.price.now,
             OldPrice = productDetails.price.was,
-            DiscountMessage = productDetails.shield?.text ?? ""
+            DiscountMessage = productDetails.shield?.text ?? "",
+            StartDate = discount.startDate,
+            EndDate = discount.endDate
         };
 
         // Save to cache

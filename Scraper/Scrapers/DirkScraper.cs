@@ -146,6 +146,8 @@ namespace Scraper.Scrapers
                 OldPrice = normalPrice,
                 NewPrice = offerPrice,
                 DiscountMessage = discountMessage,
+                StartDate = startDate,
+                EndDate = endDate
             };
 
             return productDiscount;

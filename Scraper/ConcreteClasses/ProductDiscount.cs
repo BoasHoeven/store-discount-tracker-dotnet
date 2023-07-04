@@ -8,4 +8,6 @@ public class ProductDiscount
     public decimal? OldPrice { get; set; }
     public decimal NewPrice { get; set; }
     public string DiscountMessage { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 }
