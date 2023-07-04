@@ -3,6 +3,8 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Scraper.ConcreteClasses;
 using Scraper.Contracts;
 
@@ -11,7 +13,16 @@ namespace Scraper.Scrapers;
 public sealed class DirkScraper : IStoreScraper
 {
     private static readonly HttpClient Client = new();
-        
+    private readonly IMemoryCache cache;
+    private readonly ILogger<DirkScraper> logger;
+
+    public DirkScraper(IMemoryCache cache, ILogger<DirkScraper> logger)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        this.logger = logger;
+        this.cache = cache;
+    }
+
     private const string ApiKey = "6d3a42a3-6d93-4f98-838d-bcc0ab2307fd";
     private const string ProductNameXPath = "//h1[@class='product-details__info__title']";
     private const string ProductUnitSizeXPath = "//span[@class='product-details__info__subtitle']";
@@ -113,33 +124,32 @@ public sealed class DirkScraper : IStoreScraper
         {
             throw new ArgumentException($"Unsupported store: {product.StoreName}");
         }
-    
+        
+        if (cache.TryGetValue($"dirk_{product.Id}", out ProductDiscount? cachedDiscount))
+        {
+            logger.LogInformation("Cache hit for {Product}", product);
+            return cachedDiscount;
+        }
+
         var response = await Client.GetAsync($"https://api.dirk.nl/v1/assortmentcache/number/66/{product.ProductNumber}?api_key={ApiKey}");
 
         if (!response.IsSuccessStatusCode) return null;
         var content = await response.Content.ReadAsStringAsync();
 
-        // Parse the content into a dynamic object
         var jsonData = JsonDocument.Parse(content);
-
-        // If there is no offer, return null
         var productOffers = jsonData.RootElement.GetProperty("ProductOffers");
+
         if (productOffers.ValueKind == JsonValueKind.Undefined || productOffers.GetArrayLength() == 0) return null;
 
         var offer = productOffers[0];
         var startDateString = offer.GetProperty("Offer").GetProperty("StartDate").GetString();
         var endDateString = offer.GetProperty("Offer").GetProperty("EndDate").GetString();
-
-        // Parse the start and end dates
         var startDate = DateTime.ParseExact(startDateString, "yyyy-MM-ddTHH:mm:ss", new CultureInfo("nl-NL"), DateTimeStyles.None);
         var endDate = DateTime.ParseExact(endDateString, "yyyy-MM-ddTHH:mm:ss", new CultureInfo("nl-NL"), DateTimeStyles.None);
-
-        // Calculate the discount message
         var offerPrice = offer.GetProperty("OfferPrice").GetDecimal();
         var regularPrice = offer.GetProperty("RegularPrice").GetDecimal();
         var discountMessage = $"Now {offerPrice} - Regular Price: {regularPrice}, Offer Price: {offerPrice}";
 
-        // Create the ProductDiscount object
         var productDiscount = new ProductDiscount
         {
             Product = product,
@@ -149,6 +159,15 @@ public sealed class DirkScraper : IStoreScraper
             StartDate = startDate,
             EndDate = endDate
         };
+
+        if (DateTime.UtcNow < endDate.ToUniversalTime())
+        {
+            cache.Set($"dirk_{product.Id}", productDiscount, endDate.ToUniversalTime());
+        }
+        else
+        {
+            logger.LogWarning("Attempted to cache expired discount for {Product}. Discount end date: {EndDate}", product, endDate);
+        }
 
         return productDiscount;
     }
