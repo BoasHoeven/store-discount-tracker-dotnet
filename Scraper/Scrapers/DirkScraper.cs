@@ -3,7 +3,7 @@ using Scraper.Contracts;
 
 namespace Scraper.Scrapers;
 
-public class DirkScraper : IStoreScraper
+public sealed class DirkScraper : IStoreScraper
 {
     public async Task<IProduct?> GetProductFromId(string id)
     {

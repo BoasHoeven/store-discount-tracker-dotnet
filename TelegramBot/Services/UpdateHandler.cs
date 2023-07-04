@@ -56,17 +56,23 @@ public class UpdateHandler : IUpdateHandler
     {
         var productGroups = products.GroupBy(p => p.StoreName);
         var storeProductStrings = new List<string>();
+        var charactersToEscape = new[] { '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!' };
 
         foreach (var group in productGroups)
         {
-            var productNames = group.Select(p => p.ToString());
-            var storeProductsString = $"{group.Key}:\n{string.Join("\n", productNames)}";
+            var productNames = group.Select(p => EscapeMarkdownV2(p.ToString()!, charactersToEscape));
+            var storeProductsString = $"*{group.Key}*\n{string.Join("\n", productNames)}";
             storeProductStrings.Add(storeProductsString);
         }
 
         return string.Join("\n\n", storeProductStrings);
     }
-    
+
+    private static string EscapeMarkdownV2(string input, char[] charactersToEscape)
+    {
+        return string.Concat(input.Select(c => charactersToEscape.Contains(c) ? "\\" + c : c.ToString()));
+    }
+
     private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
     {
         logger.LogInformation("Receive message type: {MessageType}", message.Type);
@@ -86,13 +92,12 @@ public class UpdateHandler : IUpdateHandler
         {
             var action = messageText.Split(' ')[0] switch
             {
-                "/list" => ListProducts(botClient, message, cancellationToken),
-                "/add" => Add(botClient, message, cancellationToken),
+                "/list"   => ListProducts(botClient, message, cancellationToken),
+                "/add"    => Add(botClient, message, cancellationToken),
                 "/remove" => Remove(botClient, message, cancellationToken),
-                _      => Usage(botClient, message, cancellationToken)
+                _         => Usage(botClient, message, cancellationToken)
             };
-            var sentMessage = await action;
-            logger.LogInformation("The message was sent with id: {SentMessageId}", sentMessage.MessageId);
+            await action;
         }
 
         async Task<Message> ListProducts(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
@@ -103,6 +108,7 @@ public class UpdateHandler : IUpdateHandler
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
                 text: string.IsNullOrEmpty(formattedProducts) ? "No products to show." : formattedProducts,
+                parseMode: ParseMode.MarkdownV2,
                 cancellationToken: cancellationToken);
         }
         
@@ -112,7 +118,7 @@ public class UpdateHandler : IUpdateHandler
 
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
-                text: "Send me the url of the product you want to add",
+                text: "Send me the url of the product you want to add.",
                 cancellationToken: cancellationToken);
         }
         
@@ -167,18 +173,6 @@ public class UpdateHandler : IUpdateHandler
                 text: resultMessage,
                 cancellationToken: cancellationToken);
         }
-        
-        // logger.LogInformation("Received inline keyboard callback from: {CallbackQueryId}", callbackQuery.Id);
-
-        // await botClient.AnswerCallbackQueryAsync(
-        //     callbackQueryId: callbackQuery.Id,
-        //     text: $"Received {callbackQuery.Data}",
-        //     cancellationToken: cancellationToken);
-        //
-        // await botClient.SendTextMessageAsync(
-        //     chatId: callbackQuery.Message!.Chat.Id,
-        //     text: $"Received {callbackQuery.Data}",
-        //     cancellationToken: cancellationToken);
     }
     
     private async Task HandleConversationState(Message message, CancellationToken cancellationToken)

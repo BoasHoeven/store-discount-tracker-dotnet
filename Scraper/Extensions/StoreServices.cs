@@ -13,7 +13,7 @@ public static class StoreServices
 
         foreach (var type in storeTypes)
         {
-            services.AddSingleton(typeof(IStore), type);
+            services.AddScoped(typeof(IStore), type);
         }
 
         var scrapers = AppDomain.CurrentDomain.GetAssemblies()
@@ -22,7 +22,7 @@ public static class StoreServices
         
         foreach (var type in scrapers)
         {
-            services.AddSingleton(typeof(IStoreScraper), type);
+            services.AddScoped(typeof(IStoreScraper), type);
         }
         
         return services;

@@ -17,12 +17,10 @@ var services = serviceScope.ServiceProvider;
 var productService = services.GetRequiredService<ProductService>();
 
 // Add product
-const string message = "https://www.ah.nl/producten/product/wi169797/ah-avocado";
+const string message = "https://www.ah.nl/producten/product/wi46321/coolbest-premium-orange";
 // const string message = "https://www.ah.nl/producten/product/wi2800/coca-cola-regular";
 await productService.AddProductFromMessage(message);
 
 // Discounts
 var discountService = services.GetRequiredService<StoreDiscountService>();
 var discounts = await discountService.GetDiscounts();
-
-Console.WriteLine("test");

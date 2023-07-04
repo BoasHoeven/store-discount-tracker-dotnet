@@ -16,7 +16,8 @@ public static class ScraperServices
             .AddTransient<IProductStorage, JsonProductStorageService>()
             .AddScoped<ProductSerializer>()
             .AddTransient<ProductService>()
-            .AddTransient<UrlExtractorService>();
+            .AddTransient<UrlExtractorService>()
+            .AddMemoryCache();
 
         return serviceCollection;
     }

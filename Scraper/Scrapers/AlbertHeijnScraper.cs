@@ -1,17 +1,27 @@
 using System.Text.Json;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Scraper.ConcreteClasses;
 using Scraper.Contracts;
 
 namespace Scraper.Scrapers;
 
-public class AlbertHeijnScraper : IStoreScraper
+public sealed class AlbertHeijnScraper : IStoreScraper
 {
     private readonly HttpClient client;
+    private readonly IMemoryCache cache;
+    private readonly ILogger<AlbertHeijnScraper> logger;
 
-    public AlbertHeijnScraper(IHttpClientFactory clientFactory)
+    private readonly TimeZoneInfo dutchTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+
+    public AlbertHeijnScraper(IHttpClientFactory clientFactory, IMemoryCache cache, ILogger<AlbertHeijnScraper> logger)
     {
         ArgumentNullException.ThrowIfNull(clientFactory);
-        
+        ArgumentNullException.ThrowIfNull(cache);
+        ArgumentNullException.ThrowIfNull(logger);
+
+        this.cache = cache;
+        this.logger = logger;
         client = clientFactory.CreateClient("AlbertHeijnClient");
     }
 
@@ -38,24 +48,35 @@ public class AlbertHeijnScraper : IStoreScraper
             throw new ArgumentException($"Product and store mismatch. Product: {product.StoreName} and Store: Albert Heijn");
         }
 
+        // Check cache first
+        if (cache.TryGetValue($"Discount_{product.Id}", out ProductDiscount discountCache))
+        {
+            logger.LogInformation("Cache hit for {Product}", product);
+            return discountCache;
+        }
+
         var productDetails = await GetProductDetailsFromId(product.Id);
         if (productDetails?.discount is null) return null;
 
         var discount = productDetails.discount;
-        var dutchTimeZone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
         var dutchTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, dutchTimeZone);
         var isOnDiscount = dutchTime >= discount.startDate && dutchTime <= discount.endDate;
 
         if (!isOnDiscount)
             return null;
 
-        return new ProductDiscount
+        var productDiscount = new ProductDiscount
         {
             Product = product,
             NewPrice = productDetails.price.now,
             OldPrice = productDetails.price.was,
             DiscountMessage = productDetails.shield?.text ?? ""
         };
+
+        // Save to cache
+        cache.Set($"Discount_{product.Id}", productDiscount, discount.endDate.ToUniversalTime());
+
+        return productDiscount;
     }
 
     private async Task<ProductDetails?> GetProductDetailsFromId(string id)

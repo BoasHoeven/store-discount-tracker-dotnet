@@ -28,10 +28,8 @@ public class ProductService
         {
             return $"{url} did not match any store";
         }
-        Console.WriteLine($"URL matches store: {store.StoreName}");
     
-        var id = StoreMatcherService.GetProductIdFromUrl(store, url);
-        Console.WriteLine($"{id} was extracted from url: {url}");
+        var id = StoreMatcherService.GetIdFromUrl(store, url);
         if (id is null)
             return $"No product id found in the url: {url}";
         

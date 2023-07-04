@@ -14,7 +14,7 @@ public abstract class PollingServiceBase<TReceiverService> : BackgroundService
     where TReceiverService : IReceiverService
 {
     private readonly IServiceProvider serviceProvider;
-    private readonly ILogger logger;
+    private readonly ILogger<PollingServiceBase<TReceiverService>> logger;
 
     internal PollingServiceBase(
         IServiceProvider serviceProvider,
