@@ -136,8 +136,8 @@ public class UpdateHandler : IUpdateHandler
         {
             const string usage = "Usage:\n" +
                                  "/list - display products\n" +
-                                 "/add - add a product from an url\n" +
-                                 "/remove - remove a product by its name or part of its name";
+                                 "/add - add a product from a URL\n" +
+                                 "/remove - remove a product by its name or a part of its name";
                                  // "/keyboard    - send custom keyboard\n" +
                                  // "/remove      - remove custom keyboard\n" +
                                  // "/photo       - send a photo\n" +
@@ -182,7 +182,7 @@ public class UpdateHandler : IUpdateHandler
         switch(state)
         {
             case ConversationState.WaitingForProductUrl:
-                var addProductMessage = await productService.AddProductFromMessage(message.Text!);
+                var addProductMessage = await productService.AddProductFromMessage(message.Text!, message.From!.Id);
                 
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id,

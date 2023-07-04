@@ -9,5 +9,5 @@ public interface IProduct
     decimal Price { get; set; }
     DateTime Created { get; init; }
     DateTime LastUpdated { get; set; }
-    int AddedBy { get; init; }
+    long AddedBy { get; init; }
 }

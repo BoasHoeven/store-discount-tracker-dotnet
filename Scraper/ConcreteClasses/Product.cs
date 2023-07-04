@@ -32,7 +32,7 @@ public class Product : IProduct
 
     public DateTime Created { get; init; }
     public DateTime LastUpdated { get; set; }
-    public int AddedBy { get; init; }
+    public long AddedBy { get; init; }
 
     public Product(string id, string name, string unitSize, string storeName)
     {

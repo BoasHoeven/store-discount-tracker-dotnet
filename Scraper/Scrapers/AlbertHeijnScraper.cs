@@ -25,7 +25,7 @@ public sealed class AlbertHeijnScraper : IStoreScraper
         client = clientFactory.CreateClient("AlbertHeijnClient");
     }
 
-    public async Task<IProduct?> GetProductFromId(string id)
+    public async Task<IProduct?> GetProductFromId(string id, long userId)
     {
         var productDetails = await GetProductDetailsFromId(id);
 
@@ -34,7 +34,7 @@ public sealed class AlbertHeijnScraper : IStoreScraper
         IProduct product = new Product(id, productDetails.title, productDetails.price.unitSize,"Albert Heijn")
         {
             Price = productDetails.price.was ?? productDetails.price.now,
-            AddedBy = -1,
+            AddedBy = userId,
             LastUpdated = DateTime.UtcNow
         };
 

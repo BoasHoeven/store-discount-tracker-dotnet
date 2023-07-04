@@ -15,7 +15,7 @@ public class ProductService
         this.urlExtractorService = urlExtractorService;
     }
 
-    public async Task<string> AddProductFromMessage(string message)
+    public async Task<string> AddProductFromMessage(string message, long userId)
     {
         var url = urlExtractorService.ExtractUrlFromMessage(message);
         if (url is null)
@@ -39,7 +39,7 @@ public class ProductService
             return $"*{existingProduct}* from *{store.StoreName}* has already been added.";
         }
     
-        var product = await store.Scraper.GetProductFromId(id);
+        var product = await store.Scraper.GetProductFromId(id, userId);
         if (product is null)
             return $"Could not scrape a product with id: {id} from store: {store.StoreName}";
     
