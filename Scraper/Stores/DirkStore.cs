@@ -10,7 +10,7 @@ public class DirkStore : IStore
     
     public DirkStore(IEnumerable<IStoreScraper> scrapers)
     {
-        Scraper = scrapers.FirstOrDefault(x => x.GetType() == typeof(DirkScraper)) ?? throw new InvalidOperationException();
+        Scraper = scrapers.FirstOrDefault(x => x is DirkScraper) ?? throw new InvalidOperationException();
     }
     public string StoreName => "Dirk";
     public IEnumerable<Regex> StoreMatchRegex => new Regex[]

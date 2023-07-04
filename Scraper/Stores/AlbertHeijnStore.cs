@@ -10,7 +10,7 @@ public class AlbertHeijnStore : IStore
     
     public AlbertHeijnStore(IEnumerable<IStoreScraper> scrapers)
     {
-        Scraper = scrapers.FirstOrDefault(x => x.GetType() == typeof(AlbertHeijnScraper)) ?? throw new InvalidOperationException();
+        Scraper = scrapers.FirstOrDefault(x => x is AlbertHeijnScraper) ?? throw new InvalidOperationException();
     }
     public string StoreName => "Albert Heijn";
     public IEnumerable<Regex> StoreMatchRegex => new Regex[]

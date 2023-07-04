@@ -17,10 +17,12 @@ var services = serviceScope.ServiceProvider;
 var productService = services.GetRequiredService<ProductService>();
 
 // Add product
-const string message = "https://www.dirk.nl/boodschappen/dranken-sap-koffie-thee/frisdranken/coca-cola-zero-cherry/68297";
+const string message = "https://www.dirk.nl/aanbiedingen/almhof-room-of-fruityoghurt/97481/almhof-roomyoghurt-aardbei/8589";
 // const string message = "https://www.ah.nl/producten/product/wi2800/coca-cola-regular";
 await productService.AddProductFromMessage(message, -1);
 
 // Discounts
-// var discountService = services.GetRequiredService<StoreDiscountService>();
-// var discounts = await discountService.GetDiscounts();
+var discountService = services.GetRequiredService<StoreDiscountService>();
+var discounts = await discountService.GetDiscounts();
+
+Console.WriteLine("test");

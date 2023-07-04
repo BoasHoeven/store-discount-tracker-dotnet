@@ -33,6 +33,7 @@ public class Product : IProduct
     public DateTime Created { get; init; }
     public DateTime LastUpdated { get; set; }
     public long AddedBy { get; init; }
+    public string ProductNumber { get; set; }
 
     public Product(string id, string name, string unitSize, string storeName)
     {

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -17,6 +18,8 @@ namespace Scraper.Scrapers
         
         private sealed class ProductData
         {
+            public int ProductID { get; set; }
+            public string? ProductNumber { get; set; }
             public string? Brand { get; set; }
             public string? MainDescription { get; set; }
             public string? SubDescription { get; set; }
@@ -63,7 +66,6 @@ namespace Scraper.Scrapers
             }
             catch (JsonException)
             {
-                // handle or log the exception as you see fit
                 return null;
             }
         }
@@ -98,20 +100,57 @@ namespace Scraper.Scrapers
                 Created = DateTime.UtcNow,
                 LastUpdated = DateTime.UtcNow,
                 Name = productName,
-                Price = productData.ProductPrices.FirstOrDefault()!.RegularPrice
+                Price = productData.ProductPrices.FirstOrDefault()!.RegularPrice,
+                ProductNumber = productData.ProductNumber!
             };
 
             return product;
         }
-
-        public Task<ProductDiscount?> IsOnDiscount(IProduct product)
+        
+        public async Task<ProductDiscount?> IsOnDiscount(IProduct product)
         {
             if (product.StoreName != "Dirk")
             {
                 throw new ArgumentException($"Unsupported store: {product.StoreName}");
             }
+    
+            var response = await Client.GetAsync($"https://api.dirk.nl/v1/assortmentcache/number/66/{product.ProductNumber}?api_key={ApiKey}");
 
-            throw new NotImplementedException();
+            if (!response.IsSuccessStatusCode) return null;
+            var content = await response.Content.ReadAsStringAsync();
+
+            // Parse the content into a dynamic object
+            var jsonData = JsonDocument.Parse(content);
+
+            // If there is no offer, return null
+            var productOffers = jsonData.RootElement.GetProperty("ProductOffers");
+            if (productOffers.ValueKind == JsonValueKind.Undefined || productOffers.GetArrayLength() == 0) return null;
+
+            var offer = productOffers[0];
+            var startDateString = offer.GetProperty("Offer").GetProperty("StartDate").GetString();
+            var endDateString = offer.GetProperty("Offer").GetProperty("EndDate").GetString();
+
+            // Parse the start and end dates
+            var startDate = DateTime.ParseExact(startDateString, "yyyy-MM-ddTHH:mm:ss", new CultureInfo("nl-NL"), DateTimeStyles.None);
+            var endDate = DateTime.ParseExact(endDateString, "yyyy-MM-ddTHH:mm:ss", new CultureInfo("nl-NL"), DateTimeStyles.None);
+
+            // Calculate the discount message
+            var offerPrice = offer.GetProperty("OfferPrice").GetDecimal();
+            var normalPrice = offer.GetProperty("RegularPrice").GetDecimal();
+            var discountMessage = $"Now {offerPrice} - Regular Price: {normalPrice}, Offer Price: {offerPrice}";
+
+            // Create the ProductDiscount object
+            var productDiscount = new ProductDiscount
+            {
+                Product = product,
+                OldPrice = normalPrice,
+                NewPrice = offerPrice,
+                DiscountMessage = discountMessage,
+            };
+
+            return productDiscount;
         }
+
+
     }
 }
