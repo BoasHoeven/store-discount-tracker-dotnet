@@ -48,8 +48,7 @@ public sealed class AlbertHeijnScraper : IStoreScraper
             throw new ArgumentException($"Product and store mismatch. Product: {product.StoreName} and Store: Albert Heijn");
         }
 
-        // Check cache first
-        if (cache.TryGetValue($"Discount_{product.Id}", out ProductDiscount discountCache))
+        if (cache.TryGetValue($"Discount_{product.Id}", out ProductDiscount? discountCache))
         {
             logger.LogInformation("Cache hit for {Product}", product);
             return discountCache;
@@ -75,7 +74,6 @@ public sealed class AlbertHeijnScraper : IStoreScraper
             EndDate = discount.endDate
         };
 
-        // Save to cache
         cache.Set($"Discount_{product.Id}", productDiscount, discount.endDate.ToUniversalTime());
 
         return productDiscount;
