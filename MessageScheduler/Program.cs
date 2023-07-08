@@ -20,8 +20,8 @@ services.AddSingleton<IConfiguration>(configuration);
 
 services.AddTelegramHttpClient(configuration);
 
-services.AddOptions<ChannelConfiguration>()
-    .Bind(configuration.GetSection(ChannelConfiguration.Configuration));
+services.AddOptions<TelegramChannelConfiguration>()
+    .Bind(configuration.GetSection(TelegramChannelConfiguration.Configuration));
 
 services.AddScraperServices();
 services.AddSingleton<IJobFactory, JobFactory>();

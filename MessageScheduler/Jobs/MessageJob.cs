@@ -15,15 +15,15 @@ public class MessageJob : IJob
 {
     private readonly ITelegramBotClient botClient;
     private readonly StoreDiscountService storeDiscountService;
-    private readonly ChannelConfiguration channelConfiguration;
+    private readonly TelegramChannelConfiguration telegramChannelConfiguration;
 
-    public MessageJob(ITelegramBotClient botClient, StoreDiscountService storeDiscountService, IOptions<ChannelConfiguration> channelConfiguration)
+    public MessageJob(ITelegramBotClient botClient, StoreDiscountService storeDiscountService, IOptions<TelegramChannelConfiguration> channelConfiguration)
     {
         ArgumentNullException.ThrowIfNull(botClient);
         ArgumentNullException.ThrowIfNull(storeDiscountService);
         ArgumentNullException.ThrowIfNull(channelConfiguration);
 
-        this.channelConfiguration = channelConfiguration.Value;
+        telegramChannelConfiguration = channelConfiguration.Value;
         this.botClient = botClient;
         this.storeDiscountService = storeDiscountService;
     }
@@ -34,7 +34,7 @@ public class MessageJob : IJob
 
         if (!discounts.Any())
         {
-            await botClient.SendTextMessageAsync(channelConfiguration.ChannelId, "Er zijn geen producten in de bonus deze week.", parseMode: ParseMode.Html);
+            await botClient.SendTextMessageAsync(telegramChannelConfiguration.ChannelId, "Er zijn geen producten in de bonus deze week.", parseMode: ParseMode.Html);
             return;
         }
 
@@ -78,7 +78,7 @@ public class MessageJob : IJob
                 message.AppendLine();
             }
 
-            await botClient.SendTextMessageAsync(channelConfiguration.ChannelId, message.ToString(), parseMode: ParseMode.Html);
+            await botClient.SendTextMessageAsync(telegramChannelConfiguration.ChannelId, message.ToString(), parseMode: ParseMode.Html);
         }
     }
 

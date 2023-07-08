@@ -1,12 +1,12 @@
 using Microsoft.Extensions.Logging;
 using Scraper.Contracts;
 using Scraper.Services;
+using SharedServices.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.ReplyMarkups;
 using TelegramBot.Enums;
 
@@ -35,18 +35,10 @@ public class UpdateHandler : IUpdateHandler
     {
         var handler = update switch
         {
-            // UpdateType.Unknown:
-            // UpdateType.ChannelPost:
-            // UpdateType.EditedChannelPost:
-            // UpdateType.ShippingQuery:
-            // UpdateType.PreCheckoutQuery:
-            // UpdateType.Poll:
-            { Message: { } message }                       => BotOnMessageReceived(message, cancellationToken),
-            { EditedMessage: { } message }                 => BotOnMessageReceived(message, cancellationToken),
-            { CallbackQuery: { } callbackQuery }           => BotOnCallbackQueryReceived(callbackQuery, cancellationToken),
-            { InlineQuery: { } inlineQuery }               => BotOnInlineQueryReceived(inlineQuery, cancellationToken),
-            { ChosenInlineResult: { } chosenInlineResult } => BotOnChosenInlineResultReceived(chosenInlineResult, cancellationToken),
-            _                                              => UnknownUpdateHandlerAsync(update, cancellationToken)
+            { Message: { } message }             => BotOnMessageReceived(message, cancellationToken),
+            { EditedMessage: { } message }       => BotOnMessageReceived(message, cancellationToken),
+            { CallbackQuery: { } callbackQuery } => BotOnCallbackQueryReceived(callbackQuery, cancellationToken),
+            _                                    => UnknownUpdateHandlerAsync(update, cancellationToken)
         };
 
         await handler;
@@ -56,21 +48,14 @@ public class UpdateHandler : IUpdateHandler
     {
         var productGroups = products.GroupBy(p => p.StoreName);
         var storeProductStrings = new List<string>();
-        var charactersToEscape = new[] { '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!' };
-
         foreach (var group in productGroups)
         {
-            var productNames = group.Select(p => EscapeMarkdownV2(p.ToString()!, charactersToEscape));
+            var productNames = group.Select(p => p.ToString()!.EscapeMarkdown());
             var storeProductsString = $"*{group.Key}*\n{string.Join("\n", productNames)}";
             storeProductStrings.Add(storeProductsString);
         }
 
         return string.Join("\n\n", storeProductStrings);
-    }
-
-    private static string EscapeMarkdownV2(string input, char[] charactersToEscape)
-    {
-        return string.Concat(input.Select(c => charactersToEscape.Contains(c) ? "\\" + c : c.ToString()));
     }
 
     private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
@@ -138,11 +123,6 @@ public class UpdateHandler : IUpdateHandler
                                  "/list - display products\n" +
                                  "/add - add a product from a URL\n" +
                                  "/remove - remove a product by its name or a part of its name";
-                                 // "/keyboard    - send custom keyboard\n" +
-                                 // "/remove      - remove custom keyboard\n" +
-                                 // "/photo       - send a photo\n" +
-                                 // "/request     - request location or contact\n" +
-                                 // "/inline_mode - send keyboard with Inline Query";
 
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
@@ -222,40 +202,6 @@ public class UpdateHandler : IUpdateHandler
         }
     }
 
-    #region Inline Mode
-
-    private async Task BotOnInlineQueryReceived(InlineQuery inlineQuery, CancellationToken cancellationToken)
-    {
-        logger.LogInformation("Received inline query from: {InlineQueryFromId}", inlineQuery.From.Id);
-
-        InlineQueryResult[] results = {
-            // displayed result
-            new InlineQueryResultArticle(
-                id: "1",
-                title: "TgBots",
-                inputMessageContent: new InputTextMessageContent("hello"))
-        };
-
-        await botClient.AnswerInlineQueryAsync(
-            inlineQueryId: inlineQuery.Id,
-            results: results,
-            cacheTime: 0,
-            isPersonal: true,
-            cancellationToken: cancellationToken);
-    }
-
-    private async Task BotOnChosenInlineResultReceived(ChosenInlineResult chosenInlineResult, CancellationToken cancellationToken)
-    {
-        logger.LogInformation("Received inline result: {ChosenInlineResultId}", chosenInlineResult.ResultId);
-
-        await botClient.SendTextMessageAsync(
-            chatId: chosenInlineResult.From.Id,
-            text: $"You chose result with Id: {chosenInlineResult.ResultId}",
-            cancellationToken: cancellationToken);
-    }
-
-    #endregion
-    
     private Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
     {
         logger.LogInformation("Unknown update type: {UpdateType}", update.Type);

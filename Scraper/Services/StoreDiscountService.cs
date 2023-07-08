@@ -19,10 +19,10 @@ public class StoreDiscountService
 
     public async Task<IEnumerable<ProductDiscount>> GetDiscounts()
     {
-        var products = productService.GetAllProducts().ToList();
+        var products = productService.GetAllProducts();
         var productsByStore = products.GroupBy(x => x.StoreName);
+        
         var discountedProducts = new List<ProductDiscount>();
-
         foreach (var group in productsByStore)
         {
             var store = stores.SingleOrDefault(x => x.StoreName == group.Key);
@@ -30,8 +30,8 @@ public class StoreDiscountService
 
             var tasks = group.Select(product => store.Scraper.IsOnDiscount(product));
             var results = await Task.WhenAll(tasks);
-            var nonNullProductDiscounts = results.Where(productDiscount => productDiscount is not null);
-            discountedProducts.AddRange(nonNullProductDiscounts!);
+            var productDiscounts = results.Where(productDiscount => productDiscount is not null);
+            discountedProducts.AddRange(productDiscounts!);
         }
 
         return discountedProducts;
