@@ -1,12 +1,11 @@
-﻿namespace TelegramBot.Configuration.Validations;
-
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Microsoft.Extensions.Options;
-using Configuration;
+
+namespace SharedServices.Configuration.Validations;
 
 public sealed class BotConfigurationValidation : IValidateOptions<BotConfiguration>
 {
-    public ValidateOptionsResult Validate(string name, BotConfiguration options)
+    public ValidateOptionsResult Validate(string? name, BotConfiguration options)
     {
         const string tokenFormat = @"^\d+:[A-Za-z0-9-_]{35}$";
         var match = Regex.Match(options.BotToken, tokenFormat, RegexOptions.IgnoreCase);

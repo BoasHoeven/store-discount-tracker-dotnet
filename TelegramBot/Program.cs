@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Scraper.Extensions;
-using TelegramBot.Extensions;
+using SharedServices;
 using TelegramBot.Services;
 
 var host = Host.CreateDefaultBuilder(args)

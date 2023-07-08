@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramBot", "TelegramBot\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageScheduler", "MessageScheduler\MessageScheduler.csproj", "{FA9B8D45-967E-42B1-8682-B6BB9BC735C4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedServices", "SharedServices\SharedServices.csproj", "{6C3E5882-43AB-482D-A27E-5A15405EA752}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{FA9B8D45-967E-42B1-8682-B6BB9BC735C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA9B8D45-967E-42B1-8682-B6BB9BC735C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA9B8D45-967E-42B1-8682-B6BB9BC735C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C3E5882-43AB-482D-A27E-5A15405EA752}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C3E5882-43AB-482D-A27E-5A15405EA752}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C3E5882-43AB-482D-A27E-5A15405EA752}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C3E5882-43AB-482D-A27E-5A15405EA752}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

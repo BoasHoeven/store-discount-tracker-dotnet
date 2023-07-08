@@ -14,7 +14,14 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\SharedServices\SharedServices.csproj" />
       <ProjectReference Include="..\TelegramBot\TelegramBot.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="appsettings.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

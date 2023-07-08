@@ -1,11 +1,13 @@
-﻿using MessageScheduler.Factory;
+﻿using MessageScheduler.Configuration;
+using MessageScheduler.Factory;
 using MessageScheduler.Jobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
-using TelegramBot.Extensions;
+using Scraper.Extensions;
+using SharedServices;
 
 var services = new ServiceCollection();
 
@@ -18,6 +20,10 @@ services.AddSingleton<IConfiguration>(configuration);
 
 services.AddTelegramHttpClient(configuration);
 
+services.AddOptions<ChannelConfiguration>()
+    .Bind(configuration.GetSection(ChannelConfiguration.Configuration));
+
+services.AddScraperServices();
 services.AddSingleton<IJobFactory, JobFactory>();
 services.AddTransient<MessageJob>();
 services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
@@ -39,7 +45,7 @@ var job = JobBuilder.Create<MessageJob>()
 
 var trigger = TriggerBuilder.Create()
     .WithIdentity("MessageTrigger", "Group1")
-    .WithCronSchedule("0 0/1 * 1/1 * ? *") // this runs every minute
+    .WithCronSchedule("0 0/1 * 1/1 * ? *")
     .ForJob(job)
     .Build();
 

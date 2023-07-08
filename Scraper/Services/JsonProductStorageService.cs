@@ -7,20 +7,21 @@ public class JsonProductStorageService : IProductStorage
 {
     private readonly ProductRepository productRepository;
     private readonly ProductSerializer productSerializer;
-    
-    private const string FileName = "Products.json";
+    private readonly string filePath;
     
     public JsonProductStorageService(ProductSerializer productSerializer)
     {
         this.productSerializer = productSerializer;
+        filePath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())!.Parent!.Parent!.Parent!.FullName,"Products.json");
+
         productRepository = new ProductRepository(LoadProductsFromFile());
     }
     
     private List<Product> LoadProductsFromFile()
     {
-        if (!File.Exists(FileName)) return new List<Product>();
+        if (!File.Exists(filePath)) return new List<Product>();
         
-        var jsonString = File.ReadAllText(FileName);
+        var jsonString = File.ReadAllText(filePath);
         return productSerializer.DeserializeProducts(jsonString);
     }
     
@@ -28,7 +29,7 @@ public class JsonProductStorageService : IProductStorage
     {
         productRepository.AddProduct((Product)product);
         var updatedProducts = productSerializer.SerializeProducts(productRepository.GetProducts());
-        await File.WriteAllTextAsync(FileName, updatedProducts);
+        await File.WriteAllTextAsync(filePath, updatedProducts);
         return true;
     }
 
@@ -52,7 +53,7 @@ public class JsonProductStorageService : IProductStorage
         if (product is null) return null;
         productRepository.RemoveProduct(product);
         var updatedProducts = productSerializer.SerializeProducts(productRepository.GetProducts());
-        await File.WriteAllTextAsync(FileName, updatedProducts);
+        await File.WriteAllTextAsync(filePath, updatedProducts);
 
         return product;
     }
