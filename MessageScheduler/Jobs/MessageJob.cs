@@ -2,9 +2,7 @@ using System.Globalization;
 using System.Text;
 using MessageScheduler.Configuration;
 using Microsoft.Extensions.Options;
-using Scraper.ConcreteClasses;
 using Scraper.Services;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace MessageScheduler.Jobs;
