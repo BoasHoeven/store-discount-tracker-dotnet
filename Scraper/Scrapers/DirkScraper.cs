@@ -148,14 +148,13 @@ public sealed class DirkScraper : IStoreScraper
         var endDate = DateTime.ParseExact(endDateString, "yyyy-MM-ddTHH:mm:ss", new CultureInfo("nl-NL"), DateTimeStyles.None);
         var offerPrice = offer.GetProperty("OfferPrice").GetDecimal();
         var regularPrice = offer.GetProperty("RegularPrice").GetDecimal();
-        var discountMessage = $"Now {offerPrice} - Regular Price: {regularPrice}, Offer Price: {offerPrice}";
 
         var productDiscount = new ProductDiscount
         {
             Product = product,
             OldPrice = regularPrice,
             NewPrice = offerPrice,
-            DiscountMessage = discountMessage,
+            DiscountMessage = "",
             StartDate = startDate,
             EndDate = endDate
         };

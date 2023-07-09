@@ -30,6 +30,7 @@ public sealed class Discount
     public DateTime startDate { get; set; }
     public DateTime endDate { get; set; }
     public string bonusType { get; set; }
+    public string[]? tieredOffer { get; set; }
 }
 
 public sealed class Shield

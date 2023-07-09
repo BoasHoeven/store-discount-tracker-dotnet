@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using MessageScheduler.Configuration;
 using Microsoft.Extensions.Options;
+using Scraper.ConcreteClasses;
 using Scraper.Services;
 using Telegram.Bot.Types.Enums;
 
@@ -72,7 +73,8 @@ public class MessageJob : IJob
 
                 foreach (var discount in weekDiscounts)
                 {
-                    message.AppendLine($"    - {discount.Product} van <s>€{discount.OldPrice}</s> nu voor €{discount.NewPrice}!");
+                    var discountMessage = CreateDiscountMessage(discount);
+                    message.AppendLine(discountMessage);
                 }
 
                 message.AppendLine();
@@ -80,6 +82,17 @@ public class MessageJob : IJob
 
             await botClient.SendTextMessageAsync(telegramChannelConfiguration.ChannelId, message.ToString(), parseMode: ParseMode.Html);
         }
+    }
+
+    private static string CreateDiscountMessage(ProductDiscount productDiscount)
+    {
+        string discountMessage;
+        if (productDiscount.DiscountMessage != string.Empty)
+            discountMessage = $"    - {productDiscount.Product} {productDiscount.DiscountMessage}";
+        else
+            discountMessage = $"    - {productDiscount.Product} was <s>€{productDiscount.OldPrice}</s> nu €{productDiscount.NewPrice}!";
+
+        return discountMessage;
     }
 
     private static int GetWeekOfYear(DateTime date)

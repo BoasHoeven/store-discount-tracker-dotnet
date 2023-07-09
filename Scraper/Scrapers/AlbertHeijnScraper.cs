@@ -63,13 +63,16 @@ public sealed class AlbertHeijnScraper : IStoreScraper
 
         if (!isOnDiscount)
             return null;
-
+        
+        var tieredOffer = discount.tieredOffer?.Length > 0 ? string.Join(" & ", discount.tieredOffer): "";
+        var discountMessage = tieredOffer != string.Empty ? tieredOffer : productDetails.shield?.text;
+        
         var productDiscount = new ProductDiscount
         {
             Product = product,
             NewPrice = productDetails.price.now,
             OldPrice = productDetails.price.was,
-            DiscountMessage = productDetails.shield?.text ?? "",
+            DiscountMessage = discountMessage ?? "",
             StartDate = discount.startDate,
             EndDate = discount.endDate
         };
