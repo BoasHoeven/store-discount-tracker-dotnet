@@ -2,7 +2,7 @@ using Scraper.Contracts;
 
 namespace Scraper.ConcreteClasses;
 
-public class Product : IProduct
+public sealed class Product : IProduct
 {
     public string Id { get; init; }
     public string StoreName { get; init; }

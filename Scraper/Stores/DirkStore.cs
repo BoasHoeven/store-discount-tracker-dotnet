@@ -4,7 +4,7 @@ using Scraper.Scrapers;
 
 namespace Scraper.Stores;
 
-public class DirkStore : IStore
+public sealed class DirkStore : IStore
 {
     public IStoreScraper Scraper { get; }
     

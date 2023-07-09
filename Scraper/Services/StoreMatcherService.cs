@@ -2,7 +2,7 @@ using Scraper.Contracts;
 
 namespace Scraper.Services;
 
-public class StoreMatcherService
+public sealed class StoreMatcherService
 {
     private readonly IEnumerable<IStore> stores;
 

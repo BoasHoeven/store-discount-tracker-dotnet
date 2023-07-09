@@ -3,7 +3,7 @@ using Scraper.Contracts;
 
 namespace Scraper.Services;
 
-public class StoreDiscountService
+public sealed class StoreDiscountService
 {
     private readonly IEnumerable<IStore> stores;
     private readonly ProductService productService;

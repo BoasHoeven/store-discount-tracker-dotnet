@@ -3,7 +3,7 @@ using TelegramBot.Abstract;
 
 namespace TelegramBot.Services;
 
-public class ReceiverService : ReceiverServiceBase<UpdateHandler>
+public sealed class ReceiverService : ReceiverServiceBase<UpdateHandler>
 {
     public ReceiverService(ITelegramBotClient botClient, UpdateHandler updateHandler) : base(botClient, updateHandler)
     {

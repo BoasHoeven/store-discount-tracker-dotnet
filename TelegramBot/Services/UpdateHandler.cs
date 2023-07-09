@@ -12,7 +12,7 @@ using TelegramBot.Enums;
 
 namespace TelegramBot.Services;
 
-public class UpdateHandler : IUpdateHandler
+public sealed class UpdateHandler : IUpdateHandler
 {
     private readonly Dictionary<long, ConversationState> chatStates = new();
 

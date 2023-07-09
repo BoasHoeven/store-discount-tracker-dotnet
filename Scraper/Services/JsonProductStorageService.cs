@@ -3,7 +3,7 @@ using Scraper.Contracts;
 
 namespace Scraper.Services;
 
-public class JsonProductStorageService : IProductStorage
+public sealed class JsonProductStorageService : IProductStorage
 {
     private readonly ProductRepository productRepository;
     private readonly ProductSerializer productSerializer;

@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace Scraper.ConcreteClasses;
 
-public class ProductSerializer
+public sealed class ProductSerializer
 {
     public List<Product> DeserializeProducts(string jsonString)
     {

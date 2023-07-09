@@ -2,7 +2,7 @@ using Scraper.Contracts;
 
 namespace Scraper.ConcreteClasses;
 
-public class ProductRepository
+public sealed class ProductRepository
 {
     private readonly List<Product> products;
 

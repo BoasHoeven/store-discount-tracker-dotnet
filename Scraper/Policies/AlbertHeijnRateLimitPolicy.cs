@@ -4,7 +4,7 @@ using Polly.RateLimit;
 
 namespace Scraper.Policies;
 
-public class AlbertHeijnRateLimitPolicy : DelegatingHandler
+public sealed class AlbertHeijnRateLimitPolicy : DelegatingHandler
 {
     private readonly ILogger<AlbertHeijnRateLimitPolicy> logger;
 

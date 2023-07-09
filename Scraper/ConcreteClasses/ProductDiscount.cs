@@ -2,7 +2,7 @@ using Scraper.Contracts;
 
 namespace Scraper.ConcreteClasses;
 
-public class ProductDiscount
+public sealed class ProductDiscount
 {
     public IProduct Product { get; set; }
     public decimal? OldPrice { get; set; }
