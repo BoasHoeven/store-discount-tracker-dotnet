@@ -61,4 +61,11 @@ public class ProductService
     {
         return productStorage.RemoveProduct(productId, storeName);
     }
+
+    public string GetStoreShortNameFromProduct(IProduct product)
+    {
+        var store = storeMatcher.GetStoreFromProduct(product);
+
+        return store is null ? "MISSING_STORE" : store.StoreNameShort;
+    }
 }

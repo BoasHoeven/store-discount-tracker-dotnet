@@ -13,6 +13,8 @@ public class AlbertHeijnStore : IStore
         Scraper = scrapers.FirstOrDefault(x => x is AlbertHeijnScraper) ?? throw new InvalidOperationException();
     }
     public string StoreName => "Albert Heijn";
+    public string StoreNameShort => "Ah";
+
     public IEnumerable<Regex> StoreMatchRegex => new Regex[]
     {
         new(@"^(http:\/\/www\.ah\.nl|https:\/\/www\.ah\.nl|www\.ah\.nl)")

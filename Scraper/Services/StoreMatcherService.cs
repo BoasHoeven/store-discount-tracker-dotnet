@@ -18,4 +18,7 @@ public class StoreMatcherService
         .Select(regex => regex.Match(url))
         .Where(match => match.Success)
         .Select(match => match.Groups[1].Value).FirstOrDefault();
+
+    public IStore? GetStoreFromProduct(IProduct product) =>
+        stores.FirstOrDefault(x => x.StoreName == product.StoreName);
 }

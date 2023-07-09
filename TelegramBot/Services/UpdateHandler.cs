@@ -146,7 +146,7 @@ public class UpdateHandler : IUpdateHandler
             var removedProduct = await productService.RemoveProduct(productId, storeName);
             
             var resultMessage = removedProduct != null 
-                ? $"Product '{removedProduct}' has been successfully removed."
+                ? $"Product '{removedProduct}' has been successfully removed from {storeName}."
                 : $"Failed to remove product with ID {productId} from {storeName}. It may not exist in the database.";
 
             await botClient.SendTextMessageAsync(chatId: callbackQuery.Message!.Chat.Id,
@@ -173,22 +173,27 @@ public class UpdateHandler : IUpdateHandler
                 chatStates[message.Chat.Id] = ConversationState.Normal;
                 break;
             case ConversationState.WaitingForRemoveProductName:
-                var productMatches = productService.GetProductsByName(message.Text!).Take(6).ToList();
+                var productMatches = productService.GetProductsByName(message.Text!).Take(2).ToList();
             
                 if (!productMatches.Any())
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: message.Chat.Id,
-                        text: "No product(s) found with the given name",
+                        text: "No product(s) found matching the name you provided. ",
                         cancellationToken: cancellationToken,
                         parseMode: ParseMode.Markdown);
                     break;
                 }
 
                 var inlineKeyboard = new InlineKeyboardMarkup(productMatches.Select(product =>
-                    InlineKeyboardButton.WithCallbackData(product.ToString()!, $"remove_{product.Id}_{product.StoreName}")).ToArray());
+                {
+                    var shortStoreName = productService.GetStoreShortNameFromProduct(product);
 
-                await botClient.SendTextMessageAsync(
+                    return InlineKeyboardButton.WithCallbackData($"{shortStoreName}: {product}",
+                        $"remove_{product.Id}_{product.StoreName}");
+                }).ToArray());
+                
+                await botClient.SendTextMessageAsync(  
                     chatId: message.Chat.Id,
                     text: "Choose a product to remove:",
                     replyMarkup: inlineKeyboard,
