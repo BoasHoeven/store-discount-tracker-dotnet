@@ -84,8 +84,8 @@ public class MessageJob : IJob
 
     private static int GetWeekOfYear(DateTime date)
     {
-        var dfi = DateTimeFormatInfo.CurrentInfo;
-        var cal = dfi.Calendar;
-        return cal.GetWeekOfYear(date, dfi.CalendarWeekRule, dfi.FirstDayOfWeek);
+        var dateTimeFormatInfo = DateTimeFormatInfo.CurrentInfo;
+        var calendar = dateTimeFormatInfo.Calendar;
+        return calendar.GetWeekOfYear(date, dateTimeFormatInfo.CalendarWeekRule, dateTimeFormatInfo.FirstDayOfWeek);
     }
 }
