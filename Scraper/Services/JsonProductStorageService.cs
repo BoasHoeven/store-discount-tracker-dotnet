@@ -8,11 +8,11 @@ public sealed class JsonProductStorageService : IProductStorage
     private readonly ProductRepository productRepository;
     private readonly ProductSerializer productSerializer;
     private readonly string filePath;
-    
+
     public JsonProductStorageService(ProductSerializer productSerializer)
     {
         this.productSerializer = productSerializer;
-        filePath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())!.Parent!.Parent!.Parent!.FullName,"Products.json");
+        this.filePath = Environment.GetEnvironmentVariable("PRODUCTS_JSON_PATH") ?? "Products.json";
 
         productRepository = new ProductRepository(LoadProductsFromFile());
     }

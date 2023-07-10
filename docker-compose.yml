@@ -1,0 +1,24 @@
+﻿version: '3.8'
+services:
+  telegram_bot:
+    image: telegrambot
+    build:
+      context: .
+      dockerfile: TelegramBot/Dockerfile
+    volumes:
+      - shared_data:/app/data
+    environment:
+      - PRODUCTS_JSON_PATH=/app/data/Products.json
+  messagescheduler:
+    image: messagescheduler
+    build:
+      context: .
+      dockerfile: MessageScheduler/Dockerfile
+    volumes:
+      - shared_data:/app/data
+    environment:
+      - PRODUCTS_JSON_PATH=/app/data/Products.json
+volumes:
+  shared_data:
+
+
