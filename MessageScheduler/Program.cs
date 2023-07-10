@@ -43,9 +43,21 @@ var job = JobBuilder.Create<MessageJob>()
     .WithIdentity("MessageJob", "Group1")
     .Build();
 
+
+/*
+    * * * * * ? *
+    | | | | | | |
+    | | | | | | +-- Year              (range: 1970-2099)
+    | | | | | +---- Day of the Week   (range: 1-7, 1 standing for Sunday)
+    | | | | +------ Month of the Year (range: 1-12)
+    | | | +-------- Day of the Month  (range: 1-31)
+    | | +---------- Hour              (range: 0-23)
+    | +------------ Minute            (range: 0-59)
+    +-------------- Second            (range: 0-59)
+*/
 var trigger = TriggerBuilder.Create()
     .WithIdentity("MessageTrigger", "Group1")
-    .WithCronSchedule("0 0/1 * 1/1 * ? *")
+    .WithCronSchedule("0 0 12 ? * MON *")  // run at 12 o'clock every Monday
     .ForJob(job)
     .Build();
 
