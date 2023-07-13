@@ -17,7 +17,7 @@ public sealed class AlbertHeijnStore : IStore
 
     public IEnumerable<Regex> StoreMatchRegex => new Regex[]
     {
-        new(@"^(http:\/\/www\.ah\.nl|https:\/\/www\.ah\.nl|www\.ah\.nl)")
+        new(@"^(http:\/\/|https:\/\/)?(www\.)?ah\.nl")
     };
     public IEnumerable<Regex> ExtractProductIdRegex => new Regex[]
     {

@@ -41,7 +41,7 @@ public sealed class DirkScraper : IStoreScraper
     private sealed class ProductPrice
     {
         public decimal Price { get; set; }
-        public decimal RegularPrice { get; set; }
+        public decimal? RegularPrice { get; set; }
     }
 
     private static string GetProductFullName(ProductData product)
@@ -71,11 +71,14 @@ public sealed class DirkScraper : IStoreScraper
         try
         {
             var products = JsonSerializer.Deserialize<List<ProductData>>(content);
+            var productsWherePriceIsNull = products
+                .Where(p => p.ProductPrices.Any(pp => pp.RegularPrice == null));
+
             return products?.FirstOrDefault(product =>
                 string.Equals(GetProductFullName(product), productName, StringComparison.OrdinalIgnoreCase) &&
                 product.CommercialContent == productUnitSize);
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
             return null;
         }
@@ -111,7 +114,7 @@ public sealed class DirkScraper : IStoreScraper
             Created = DateTime.UtcNow,
             LastUpdated = DateTime.UtcNow,
             Name = productName,
-            Price = productData.ProductPrices.FirstOrDefault()!.RegularPrice,
+            Price = productData.ProductPrices.FirstOrDefault()!.RegularPrice!.Value,
             ProductNumber = productData.ProductNumber!
         };
 

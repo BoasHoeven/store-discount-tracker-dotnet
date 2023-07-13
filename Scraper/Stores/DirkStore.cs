@@ -17,7 +17,7 @@ public sealed class DirkStore : IStore
 
     public IEnumerable<Regex> StoreMatchRegex => new Regex[]
     {
-        new(@"^(http:\/\/www\.dirk\.nl|https:\/\/www\.dirk\.nl|www\.dirk\.nl)")
+        new(@"^(http:\/\/|https:\/\/)?(www\.)?dirk\.nl")
     };
     public IEnumerable<Regex> ExtractProductIdRegex => new Regex[]
     {

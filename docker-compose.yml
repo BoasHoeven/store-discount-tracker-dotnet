@@ -9,7 +9,8 @@ services:
       - shared_data:/app/data
     environment:
       - PRODUCTS_JSON_PATH=/app/data/Products.json
-  messagescheduler:
+      - BotConfiguration__BotToken=${BOT_TOKEN}
+  message_scheduler:
     image: messagescheduler
     build:
       context: .
@@ -18,7 +19,7 @@ services:
       - shared_data:/app/data
     environment:
       - PRODUCTS_JSON_PATH=/app/data/Products.json
+      - BotConfiguration__BotToken=${BOT_TOKEN}
+      - TelegramChannelConfiguration__ChannelId=${CHANNEL_ID}
 volumes:
   shared_data:
-
-
