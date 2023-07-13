@@ -92,7 +92,7 @@ public sealed class UpdateHandler : IUpdateHandler
 
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
-                text: string.IsNullOrEmpty(formattedProducts) ? "No products to show." : formattedProducts,
+                text: string.IsNullOrEmpty(formattedProducts) ? "You have no products tracked yet".EscapeMarkdown() : formattedProducts,
                 parseMode: ParseMode.MarkdownV2,
                 cancellationToken: cancellationToken);
         }
@@ -103,7 +103,7 @@ public sealed class UpdateHandler : IUpdateHandler
 
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
-                text: "Send me the url of the product you want to add.",
+                text: "Send me the url of the product you want to add",
                 cancellationToken: cancellationToken);
         }
         
@@ -113,7 +113,7 @@ public sealed class UpdateHandler : IUpdateHandler
 
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
-                text: "Send me the name of the product you want to remove.",
+                text: "Send me the name of the product you want to remove",
                 cancellationToken: cancellationToken);
         }
 
@@ -147,7 +147,7 @@ public sealed class UpdateHandler : IUpdateHandler
             
             var resultMessage = removedProduct != null 
                 ? $"Product '{removedProduct}' has been successfully removed from {storeName}."
-                : $"Failed to remove product with ID {productId} from {storeName}. It may not exist in the database.";
+                : $"Failed to remove product with ID {productId} from {storeName}. It may not exist in the database";
 
             await botClient.SendTextMessageAsync(chatId: callbackQuery.Message!.Chat.Id,
                 text: resultMessage,
@@ -179,7 +179,7 @@ public sealed class UpdateHandler : IUpdateHandler
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: message.Chat.Id,
-                        text: "No product(s) found matching the name you provided. ",
+                        text: "No product(s) found matching the name you provided",
                         cancellationToken: cancellationToken,
                         parseMode: ParseMode.Markdown);
                     break;
