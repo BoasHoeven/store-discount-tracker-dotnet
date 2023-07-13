@@ -92,7 +92,7 @@ public sealed class UpdateHandler : IUpdateHandler
 
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
-                text: string.IsNullOrEmpty(formattedProducts) ? "You have no products tracked yet".EscapeMarkdown() : formattedProducts,
+                text: string.IsNullOrEmpty(formattedProducts) ? "You have no products tracked yet" : formattedProducts,
                 parseMode: ParseMode.MarkdownV2,
                 cancellationToken: cancellationToken);
         }
