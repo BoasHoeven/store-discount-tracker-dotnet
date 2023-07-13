@@ -1,3 +1,4 @@
+using System.Globalization;
 using Scraper.ConcreteClasses;
 using Scraper.Contracts;
 
@@ -35,5 +36,32 @@ public sealed class StoreDiscountService
         }
 
         return discountedProducts;
+    }
+
+    public async Task<IEnumerable<ProductDiscount>> GetDiscountsForWeek(int weekOffset)
+    {
+        // Get all discounts
+        var allDiscounts = await GetDiscounts();
+
+        // Get the current time in the Netherlands
+        var dutchTimeZone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
+        var dutchTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, dutchTimeZone);
+
+        // Get the current week of the year
+        var currentWeek = GetWeekOfYear(dutchTime);
+    
+        // Filter the discounts based on the weekOffset
+        var filteredDiscounts = allDiscounts.Where(discount => GetWeekOfYear(discount.StartDate) == (currentWeek + weekOffset) ||
+                                                               GetWeekOfYear(discount.EndDate) == (currentWeek + weekOffset));
+
+        return filteredDiscounts;
+    }
+
+    private static int GetWeekOfYear(DateTime date)
+    {
+        // Make sure we use the Dutch culture info for getting the week of the year
+        var dutchCultureInfo = new CultureInfo("nl-NL");
+        var calendar = dutchCultureInfo.Calendar;
+        return calendar.GetWeekOfYear(date, dutchCultureInfo.DateTimeFormat.CalendarWeekRule, dutchCultureInfo.DateTimeFormat.FirstDayOfWeek);
     }
 }

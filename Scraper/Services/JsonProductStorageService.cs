@@ -12,7 +12,24 @@ public sealed class JsonProductStorageService : IProductStorage
     public JsonProductStorageService(ProductSerializer productSerializer)
     {
         this.productSerializer = productSerializer;
-        this.filePath = Environment.GetEnvironmentVariable("PRODUCTS_JSON_PATH") ?? "Products.json";
+        
+        var productsJsonPath = Environment.GetEnvironmentVariable("PRODUCTS_JSON_PATH");
+        
+        if(productsJsonPath == null)
+        {
+            // Get the full path to the currently executing assembly
+            var assemblyPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+            // Use this path to find the root of the solution
+            var solutionDirectory = Directory.GetParent(assemblyPath!)?.Parent?.Parent?.Parent;
+
+            // Combine the solution directory with the relative path to the data file
+            filePath = Path.Combine(solutionDirectory!.FullName, "Products.json");
+        }
+        else
+        {
+            filePath = productsJsonPath;
+        }
 
         productRepository = new ProductRepository(LoadProductsFromFile());
     }

@@ -26,7 +26,8 @@ services.AddOptions<TelegramChannelConfiguration>()
 
 services.AddScraperServices();
 services.AddSingleton<IJobFactory, JobFactory>();
-services.AddTransient<MessageJob>();
+services.AddTransient<NextWeekDiscountJob>();
+services.AddTransient<CurrentWeekDiscountJob>();
 services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 services.AddSingleton(provider =>
 {
@@ -40,11 +41,6 @@ await scheduler.Start();
 
 scheduler.JobFactory = serviceProvider.GetRequiredService<IJobFactory>();
 
-var job = JobBuilder.Create<MessageJob>()
-    .WithIdentity("MessageJob", "Group1")
-    .Build();
-
-
 /*
     * * * * * ? *
     | | | | | | |
@@ -56,11 +52,32 @@ var job = JobBuilder.Create<MessageJob>()
     | +------------ Minute            (range: 0-59)
     +-------------- Second            (range: 0-59)
 */
-var trigger = TriggerBuilder.Create()
-    .WithIdentity("MessageTrigger", "Group1")
-    .WithCronSchedule("0 0 12 ? * MON *")  // run at 12 o'clock every Monday
-    .ForJob(job)
+
+// Schedule NextWeekDiscountJob to run on Fridays at 6 PM
+var nextWeekJob = JobBuilder.Create<NextWeekDiscountJob>()
+    .WithIdentity("NextWeekDiscountJob", "Group1")
     .Build();
 
-await scheduler.ScheduleJob(job, trigger);
+var nextWeekTrigger = TriggerBuilder.Create()
+    .WithIdentity("NextWeekDiscountTrigger", "Group1")
+    .WithCronSchedule("0 0 18 ? * FRI *") // run at 6 PM every Friday
+    .ForJob(nextWeekJob)
+    .Build();
+
+await scheduler.ScheduleJob(nextWeekJob, nextWeekTrigger);
+
+// Schedule CurrentWeekDiscountJob to run on Mondays at 9 PM
+var currentWeekJob = JobBuilder.Create<CurrentWeekDiscountJob>()
+    .WithIdentity("CurrentWeekDiscountJob", "Group1")
+    .Build();
+
+var currentWeekTrigger = TriggerBuilder.Create()
+    .WithIdentity("CurrentWeekDiscountTrigger", "Group1")
+    .WithCronSchedule("0 0 21 ? * MON *") // run at 9 PM every Monday
+    .ForJob(currentWeekJob)
+    .Build();
+
+await scheduler.ScheduleJob(currentWeekJob, currentWeekTrigger);
+
+// Stall indefinitely 
 await Task.Delay(Timeout.Infinite);
