@@ -1,0 +1,35 @@
+# This is a generated file. Not intended for manual editing.
+version: "3.8"
+services:
+  message_scheduler:
+    build:
+      context: "/Users/boas/RiderProjects/StoreDiscountTracker"
+      dockerfile: "MessageScheduler/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net7.0/MessageScheduler.dll"
+    environment:
+      DOTNET_ENVIRONMENT: "Development"
+    image: "messagescheduler:dev"
+    ports: []
+    volumes:
+    - "/Users/boas/RiderProjects/StoreDiscountTracker/MessageScheduler:/app:rw"
+    working_dir: "/app"
+  telegram_bot:
+    build:
+      context: "/Users/boas/RiderProjects/StoreDiscountTracker"
+      dockerfile: "TelegramBot/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net7.0/TelegramBot.dll"
+    environment:
+      DOTNET_ENVIRONMENT: "Development"
+    image: "telegrambot:dev"
+    ports: []
+    volumes:
+    - "/Users/boas/RiderProjects/StoreDiscountTracker/TelegramBot:/app:rw"
+    working_dir: "/app"
