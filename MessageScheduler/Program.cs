@@ -3,6 +3,7 @@ using MessageScheduler.Factory;
 using MessageScheduler.Jobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
@@ -35,23 +36,16 @@ services.AddSingleton(provider =>
     return schedulerFactory.GetScheduler().Result;
 });
 
+services.AddLogging(builder => builder.AddConsole());
+
 var serviceProvider = services.BuildServiceProvider();
 var scheduler = serviceProvider.GetRequiredService<IScheduler>();
+
+var logger = serviceProvider.GetService<ILogger<Program>>(); // Getting the logger
+
 await scheduler.Start();
 
 scheduler.JobFactory = serviceProvider.GetRequiredService<IJobFactory>();
-
-/*
-    * * * * * ? *
-    | | | | | | |
-    | | | | | | +-- Year              (range: 1970-2099)
-    | | | | | +---- Day of the Week   (range: 1-7, 1 standing for Sunday)
-    | | | | +------ Month of the Year (range: 1-12)
-    | | | +-------- Day of the Month  (range: 1-31)
-    | | +---------- Hour              (range: 0-23)
-    | +------------ Minute            (range: 0-59)
-    +-------------- Second            (range: 0-59)
-*/
 
 // Schedule NextWeekDiscountJob to run on Fridays at 6 PM
 var nextWeekJob = JobBuilder.Create<NextWeekDiscountJob>()
@@ -66,19 +60,27 @@ var nextWeekTrigger = TriggerBuilder.Create()
 
 await scheduler.ScheduleJob(nextWeekJob, nextWeekTrigger);
 
-// Schedule CurrentWeekDiscountJob to run on Mondays at 9 PM
+// Schedule CurrentWeekDiscountJob to run on Tuesdays at 9 AM
 var currentWeekJob = JobBuilder.Create<CurrentWeekDiscountJob>()
     .WithIdentity("CurrentWeekDiscountJob", "Group1")
     .Build();
 
 var currentWeekTrigger = TriggerBuilder.Create()
     .WithIdentity("CurrentWeekDiscountTrigger", "Group1")
-    //.WithCronSchedule("0 0 21 ? * MON *") // run at 9 PM every Monday
-    .WithCronSchedule("0 0/5 * * * ? *")
+    .WithCronSchedule("0 0 9 ? * TUE *") // run at 9 AM every Tuesday
     .ForJob(currentWeekJob)
     .Build();
 
 await scheduler.ScheduleJob(currentWeekJob, currentWeekTrigger);
+
+var nextWeekTriggerInfo = await scheduler.GetTrigger(nextWeekTrigger.Key);
+var nextWeekJobFireTime = nextWeekTriggerInfo!.GetNextFireTimeUtc();
+logger.LogInformation("NextWeekDiscountJob is scheduled to run next at: {NextWeekJobFireTime}", nextWeekJobFireTime);
+
+var currentWeekTriggerInfo = await scheduler.GetTrigger(currentWeekTrigger.Key);
+var currentWeekJobFireTime = currentWeekTriggerInfo!.GetNextFireTimeUtc();
+logger.LogInformation("CurrentWeekDiscountJob is scheduled to run next at: {CurrentWeekJobFireTime}", currentWeekJobFireTime);
+
 
 // Stall indefinitely 
 await Task.Delay(Timeout.Infinite);
