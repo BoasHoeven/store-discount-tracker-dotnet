@@ -79,13 +79,16 @@ public abstract class MessageJob : IJob
 
     private static string FormatEndDate(DateTime date)
     {
-        if (GetWeekDiff(date, DateTime.Now.Date) == 0)
-            return date.ToString("dddd", new CultureInfo("nl-NL"));
+        var dutchTimeZone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
+        var dutchNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, dutchTimeZone);
+        var weekDiff = GetWeekDiff(date, dutchNow);
 
-        if (GetWeekDiff(date, DateTime.Now.Date) == 1) 
-            return "volgende week " + date.ToString("dddd", new CultureInfo("nl-NL"));
-
-        return date.ToString("dd MMMM yyyy", new CultureInfo("nl-NL"));
+        return weekDiff switch
+        {
+            0 => date.ToString("dddd", new CultureInfo("nl-NL")),
+            1 => "volgende week " + date.ToString("dddd", new CultureInfo("nl-NL")),
+            _ => date.ToString("dd MMMM yyyy", new CultureInfo("nl-NL"))
+        };
     }
 
     private static int GetWeekDiff(DateTime date1, DateTime date2)

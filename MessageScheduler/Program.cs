@@ -81,6 +81,5 @@ var currentWeekTriggerInfo = await scheduler.GetTrigger(currentWeekTrigger.Key);
 var currentWeekJobFireTime = currentWeekTriggerInfo!.GetNextFireTimeUtc();
 logger.LogInformation("CurrentWeekDiscountJob is scheduled to run next at: {CurrentWeekJobFireTime}", currentWeekJobFireTime);
 
-
 // Stall indefinitely 
 await Task.Delay(Timeout.Infinite);
