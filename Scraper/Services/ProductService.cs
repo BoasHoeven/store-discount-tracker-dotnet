@@ -17,7 +17,7 @@ public sealed class ProductService
 
     public async Task<string> AddProductFromMessage(string message, long userId)
     {
-        var url = UrlExtractorService.ExtractUrlFromMessage(message);
+        var url = urlExtractorService.ExtractUrlFromMessage(message);
         if (url is null)
         {
             return $"{message} did not contain a valid url.";
