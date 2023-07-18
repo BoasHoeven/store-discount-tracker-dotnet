@@ -20,7 +20,7 @@ public sealed class ProductService
         var url = urlExtractorService.ExtractUrlFromMessage(message);
         if (url is null)
         {
-            return $"{message} did not contain a valid url.";
+            return $"{message} did not contain a valid url";
         }
     
         var store = storeMatcher.GetStoreFromUrl(url);
@@ -36,7 +36,7 @@ public sealed class ProductService
         var existingProduct = await productStorage.Exists(id, store.StoreName);
         if (existingProduct is not null)
         {
-            return $"*{existingProduct}* from *{store.StoreName}* has already been added.";
+            return $"*{existingProduct}* from *{store.StoreName}* has already been added";
         }
     
         var product = await store.Scraper.GetProductFromId(id, userId);
@@ -44,7 +44,7 @@ public sealed class ProductService
             return $"Could not scrape a product with id: {id} from store: {store.StoreName}";
     
         await productStorage.Store(product);
-        return $"Product {product} has been added.";
+        return $"Product {product} has been added";
     }
 
     public IEnumerable<IProduct> GetAllProducts()

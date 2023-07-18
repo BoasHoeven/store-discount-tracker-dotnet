@@ -146,7 +146,7 @@ public sealed class UpdateHandler : IUpdateHandler
             var removedProduct = await productService.RemoveProduct(productId, storeName);
             
             var resultMessage = removedProduct != null 
-                ? $"Product '{removedProduct}' has been successfully removed from {storeName}."
+                ? $"Product '{removedProduct}' has been successfully removed from {storeName}"
                 : $"Failed to remove product with ID {productId} from {storeName}. It may not exist in the database";
 
             await botClient.SendTextMessageAsync(chatId: callbackQuery.Message!.Chat.Id,
