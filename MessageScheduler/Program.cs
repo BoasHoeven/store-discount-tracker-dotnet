@@ -41,8 +41,6 @@ services.AddLogging(builder => builder.AddConsole());
 var serviceProvider = services.BuildServiceProvider();
 var scheduler = serviceProvider.GetRequiredService<IScheduler>();
 
-var logger = serviceProvider.GetService<ILogger<Program>>(); // Getting the logger
-
 await scheduler.Start();
 
 scheduler.JobFactory = serviceProvider.GetRequiredService<IJobFactory>();
@@ -67,11 +65,13 @@ var currentWeekJob = JobBuilder.Create<CurrentWeekDiscountJob>()
 
 var currentWeekTrigger = TriggerBuilder.Create()
     .WithIdentity("CurrentWeekDiscountTrigger", "Group1")
-    .WithCronSchedule("0 0 9 ? * TUE *") // run at 9 AM every Tuesday
+    .WithCronSchedule("0 0 9 ? * MON *") // run at 9 AM every Monday
     .ForJob(currentWeekJob)
     .Build();
 
 await scheduler.ScheduleJob(currentWeekJob, currentWeekTrigger);
+
+var logger = serviceProvider.GetRequiredService<ILogger<Program>>(); // Getting the logger
 
 var nextWeekTriggerInfo = await scheduler.GetTrigger(nextWeekTrigger.Key);
 var nextWeekJobFireTime = nextWeekTriggerInfo!.GetNextFireTimeUtc();
