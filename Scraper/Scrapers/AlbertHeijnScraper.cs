@@ -12,8 +12,6 @@ public sealed class AlbertHeijnScraper : IStoreScraper
     private readonly IMemoryCache cache;
     private readonly ILogger<AlbertHeijnScraper> logger;
 
-    private readonly TimeZoneInfo dutchTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
-
     public AlbertHeijnScraper(IHttpClientFactory clientFactory, IMemoryCache cache, ILogger<AlbertHeijnScraper> logger)
     {
         ArgumentNullException.ThrowIfNull(clientFactory);
@@ -58,8 +56,9 @@ public sealed class AlbertHeijnScraper : IStoreScraper
         if (productDetails?.discount is null) return null;
 
         var discount = productDetails.discount;
-        var dutchTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, dutchTimeZone);
-        var isOnDiscount = dutchTime >= discount.startDate && dutchTime <= discount.endDate;
+
+        var utcNow = DateTime.UtcNow;
+        var isOnDiscount = utcNow >= discount.startDate && utcNow <= discount.endDate;
 
         if (!isOnDiscount)
             return null;

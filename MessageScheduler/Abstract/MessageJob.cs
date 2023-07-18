@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Quartz;
 using Scraper.ConcreteClasses;
 using Scraper.Services;
+using SharedServices.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -12,8 +13,9 @@ namespace MessageScheduler.Abstract;
 
 public abstract class MessageJob : IJob
 {
+    protected readonly StoreDiscountService StoreDiscountService;
+
     private readonly ITelegramBotClient botClient;
-    protected readonly StoreDiscountService storeDiscountService;
     private readonly TelegramChannelConfiguration telegramChannelConfiguration;
 
     protected MessageJob(ITelegramBotClient botClient, StoreDiscountService storeDiscountService, IOptions<TelegramChannelConfiguration> channelConfiguration)
@@ -24,7 +26,7 @@ public abstract class MessageJob : IJob
 
         telegramChannelConfiguration = channelConfiguration.Value;
         this.botClient = botClient;
-        this.storeDiscountService = storeDiscountService;
+        StoreDiscountService = storeDiscountService;
     }
 
     public abstract Task Execute(IJobExecutionContext context);
@@ -48,7 +50,7 @@ public abstract class MessageJob : IJob
 
             var message = new StringBuilder($"{storeName}:\n");
 
-            var groupedByWeek = storeDiscounts.GroupBy(d => GetWeekOfYear(d.StartDate));
+            var groupedByWeek = storeDiscounts.GroupBy(d => d.StartDate.GetWeekNumber());
             foreach (var weekGroup in groupedByWeek)
             {
                 var weekDiscounts = weekGroup.ToList();
@@ -59,9 +61,8 @@ public abstract class MessageJob : IJob
 
                 message.AppendLine($"    {weekDayRange}:");
 
-                foreach (var discount in weekDiscounts)
+                foreach (var discountMessage in weekDiscounts.Select(CreateDiscountMessage))
                 {
-                    var discountMessage = CreateDiscountMessage(discount);
                     message.AppendLine($"        {discountMessage}");
                 }
 
@@ -77,34 +78,24 @@ public abstract class MessageJob : IJob
         return date.ToString("dddd", new CultureInfo("nl-NL"));
     }
 
-    private static string FormatEndDate(DateTime date)
+    private static string FormatEndDate(DateTime endDate)
     {
-        var dutchTimeZone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
-        var dutchNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, dutchTimeZone);
-        var weekDiff = GetWeekDiff(date, dutchNow);
+        var utcNow = DateTime.UtcNow;
+        var weekDiff = GetWeekDiff(endDate, utcNow);
 
         return weekDiff switch
         {
-            0 => date.ToString("dddd", new CultureInfo("nl-NL")),
-            1 => "volgende week " + date.ToString("dddd", new CultureInfo("nl-NL")),
-            _ => date.ToString("dd MMMM yyyy", new CultureInfo("nl-NL"))
+            0 => endDate.ToString("dddd", new CultureInfo("nl-NL")),
+            1 => "volgende week " + endDate.ToString("dddd", new CultureInfo("nl-NL")),
+            _ => endDate.ToString("dd MMMM yyyy", new CultureInfo("nl-NL"))
         };
     }
 
-    private static int GetWeekDiff(DateTime date1, DateTime date2)
+    private static int GetWeekDiff(DateTime dateTimeA, DateTime dateTimeB)
     {
-        return Math.Abs(GetWeekNumber(date1) - GetWeekNumber(date2));
+        return Math.Abs(dateTimeA.GetWeekNumber() - dateTimeB.GetWeekNumber());
     }
     
-    private static int GetWeekNumber(DateTime date)
-    {
-        var culture = new CultureInfo("nl-NL");
-        return culture.Calendar.GetWeekOfYear(
-            date,
-            culture.DateTimeFormat.CalendarWeekRule,
-            culture.DateTimeFormat.FirstDayOfWeek);
-    }
-
     private static string CreateDiscountMessage(ProductDiscount productDiscount)
     {
         string discountMessage;
@@ -114,12 +105,5 @@ public abstract class MessageJob : IJob
             discountMessage = $"{productDiscount.Product} was <s>€{productDiscount.OldPrice}</s> nu €{productDiscount.NewPrice}!";
 
         return discountMessage;
-    }
-    
-    private static int GetWeekOfYear(DateTime date)
-    {
-        var dateTimeFormatInfo = DateTimeFormatInfo.CurrentInfo;
-        var calendar = dateTimeFormatInfo.Calendar;
-        return calendar.GetWeekOfYear(date, dateTimeFormatInfo.CalendarWeekRule, dateTimeFormatInfo.FirstDayOfWeek);
     }
 }

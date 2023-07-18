@@ -16,7 +16,7 @@ public class CurrentWeekDiscountJob : MessageJob
     
     public override async Task Execute(IJobExecutionContext context)
     {
-        var currentWeekDiscounts = await storeDiscountService.GetDiscountsForWeek(0);
+        var currentWeekDiscounts = await StoreDiscountService.GetDiscountsForWeek(0);
         await SendDiscountsMessage(currentWeekDiscounts, "Deze week in de bonus:", "Er zijn geen producten in de bonus deze week.");
     }
 }
