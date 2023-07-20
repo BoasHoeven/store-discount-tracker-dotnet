@@ -73,12 +73,16 @@ await scheduler.ScheduleJob(currentWeekJob, currentWeekTrigger);
 
 var logger = serviceProvider.GetRequiredService<ILogger<Program>>(); // Getting the logger
 
+var dutchTimeZone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
+
 var nextWeekTriggerInfo = await scheduler.GetTrigger(nextWeekTrigger.Key);
-var nextWeekJobFireTime = nextWeekTriggerInfo!.GetNextFireTimeUtc();
+var nextWeekJobFireTimeUtc = nextWeekTriggerInfo!.GetNextFireTimeUtc();
+var nextWeekJobFireTime = TimeZoneInfo.ConvertTimeFromUtc(nextWeekJobFireTimeUtc!.Value.DateTime, dutchTimeZone);
 logger.LogInformation("NextWeekDiscountJob is scheduled to run next at: {NextWeekJobFireTime}", nextWeekJobFireTime);
 
 var currentWeekTriggerInfo = await scheduler.GetTrigger(currentWeekTrigger.Key);
-var currentWeekJobFireTime = currentWeekTriggerInfo!.GetNextFireTimeUtc();
+var currentWeekJobFireTimeUtc = currentWeekTriggerInfo!.GetNextFireTimeUtc();
+var currentWeekJobFireTime = TimeZoneInfo.ConvertTimeFromUtc(currentWeekJobFireTimeUtc!.Value.DateTime, dutchTimeZone);
 logger.LogInformation("CurrentWeekDiscountJob is scheduled to run next at: {CurrentWeekJobFireTime}", currentWeekJobFireTime);
 
 // Stall indefinitely 

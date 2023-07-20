@@ -1,4 +1,3 @@
-using System.Globalization;
 using Scraper.ConcreteClasses;
 using Scraper.Contracts;
 using SharedServices.Extensions;
