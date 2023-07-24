@@ -48,7 +48,8 @@ public abstract class MessageJob : IJob
             var storeName = storeGroup.Key;
             var storeDiscounts = storeGroup.ToList();
 
-            var message = new StringBuilder($"{storeName}:\n");
+            var message = new StringBuilder();
+            message.AppendLine($"<b>{storeName}</b>");
 
             var groupedByWeek = storeDiscounts.GroupBy(d => d.StartDate.GetWeekNumber());
             foreach (var weekGroup in groupedByWeek)
@@ -59,11 +60,23 @@ public abstract class MessageJob : IJob
 
                 var weekDayRange = $"{FormatStartDate(weekStart)} t/m {FormatEndDate(weekEnd)}";
 
-                message.AppendLine($"    {weekDayRange}:");
+                message.AppendLine($"<b>Geldig</b>: {weekDayRange}");
 
-                foreach (var discountMessage in weekDiscounts.Select(CreateDiscountMessage))
+                foreach (var discount in weekDiscounts)
                 {
-                    message.AppendLine($"        {discountMessage}");
+                    if (!string.IsNullOrEmpty(discount.DiscountMessage))
+                    {
+                        var discountDetails = discount.DiscountMessage.Split('&');
+                        message.AppendLine($"- {discount.Product.Name} ({discount.Product.Price}");
+                        foreach (var detail in discountDetails)
+                        {
+                            message.AppendLine($"  - {detail.Trim()}");
+                        }
+                    }
+                    else
+                    {
+                        message.AppendLine($"- {discount.Product.Name} was <s>€{discount.OldPrice}</s> nu €{discount.NewPrice}!");
+                    }
                 }
 
                 allMessages.AppendLine(message.ToString());
@@ -72,7 +85,7 @@ public abstract class MessageJob : IJob
         
         await botClient.SendTextMessageAsync(telegramChannelConfiguration.ChannelId, allMessages.ToString(), parseMode: ParseMode.Html);
     }
-    
+
     private static string FormatStartDate(DateTime date)
     {
         return date.ToString("dddd", new CultureInfo("nl-NL"));
@@ -94,16 +107,5 @@ public abstract class MessageJob : IJob
     private static int GetWeekDiff(DateTime dateTimeA, DateTime dateTimeB)
     {
         return Math.Abs(dateTimeA.GetWeekNumber() - dateTimeB.GetWeekNumber());
-    }
-    
-    private static string CreateDiscountMessage(ProductDiscount productDiscount)
-    {
-        string discountMessage;
-        if (productDiscount.DiscountMessage != string.Empty)
-            discountMessage = $"{productDiscount.Product} {productDiscount.DiscountMessage}";
-        else
-            discountMessage = $"{productDiscount.Product} was <s>€{productDiscount.OldPrice}</s> nu €{productDiscount.NewPrice}!";
-
-        return discountMessage;
     }
 }

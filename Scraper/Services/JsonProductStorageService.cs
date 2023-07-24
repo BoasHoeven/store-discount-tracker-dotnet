@@ -1,3 +1,4 @@
+using System.Reflection;
 using Scraper.ConcreteClasses;
 using Scraper.Contracts;
 
@@ -18,7 +19,7 @@ public sealed class JsonProductStorageService : IProductStorage
         if(productsJsonPath == null)
         {
             // Get the full path to the currently executing assembly
-            var assemblyPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             // Use this path to find the root of the solution
             var solutionDirectory = Directory.GetParent(assemblyPath!)?.Parent?.Parent?.Parent;
