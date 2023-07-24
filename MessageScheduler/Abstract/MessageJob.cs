@@ -67,10 +67,17 @@ public abstract class MessageJob : IJob
                 if (!string.IsNullOrEmpty(discount.DiscountMessage))
                 {
                     var discountDetails = discount.DiscountMessage.Split('&');
-                    message.AppendLine($"- {discount.Product} (€{discount.Product.Price})");
-                    foreach (var detail in discountDetails)
+                    if (discountDetails.Length != 1)
                     {
-                        message.AppendLine($"  - {detail.Trim()}");
+                        message.AppendLine($"- {discount.Product}");
+                        foreach (var detail in discountDetails)
+                        {
+                            message.AppendLine($"  - {detail.Trim()}");
+                        }
+                    }
+                    else
+                    {
+                        message.AppendLine($"- {discount.Product} {discountDetails[0].ToLower()}");
                     }
                 }
                 else
