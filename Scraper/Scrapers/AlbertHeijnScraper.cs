@@ -56,13 +56,6 @@ public sealed class AlbertHeijnScraper : IStoreScraper
         if (productDetails?.discount is null) return null;
 
         var discount = productDetails.discount;
-
-        var utcNow = DateTime.UtcNow;
-        var isOnDiscount = utcNow >= discount.startDate && utcNow <= discount.endDate;
-
-        if (!isOnDiscount)
-            return null;
-        
         var tieredOffer = discount.tieredOffer?.Length > 0 ? string.Join(" & ", discount.tieredOffer): "";
         var discountMessage = tieredOffer != string.Empty ? tieredOffer : productDetails.shield?.text;
         
