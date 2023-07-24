@@ -51,7 +51,7 @@ var nextWeekJob = JobBuilder.Create<NextWeekDiscountJob>()
     .Build();
 
 var nextWeekTrigger = TriggerBuilder.Create()
-    .WithIdentity("NextWeekDiscountTrigger", "Group1")
+    .WithIdentity("NextWeekDiscountTrigger")
     .WithCronSchedule("0 0 18 ? * FRI *") // run at 6 PM every Friday
     .ForJob(nextWeekJob)
     .Build();
@@ -60,18 +60,18 @@ await scheduler.ScheduleJob(nextWeekJob, nextWeekTrigger);
 
 // Schedule CurrentWeekDiscountJob to run on Tuesdays at 9 AM
 var currentWeekJob = JobBuilder.Create<CurrentWeekDiscountJob>()
-    .WithIdentity("CurrentWeekDiscountJob", "Group1")
+    .WithIdentity("CurrentWeekDiscountJob")
     .Build();
 
 var currentWeekTrigger = TriggerBuilder.Create()
     .WithIdentity("CurrentWeekDiscountTrigger", "Group1")
-    .WithCronSchedule("0 0 9 ? * MON *") // run at 9 AM every Monday
+    .WithCronSchedule("0 0 8 ? * MON *") // run at 8 AM every Monday
     .ForJob(currentWeekJob)
     .Build();
 
 await scheduler.ScheduleJob(currentWeekJob, currentWeekTrigger);
 
-var logger = serviceProvider.GetRequiredService<ILogger<Program>>(); // Getting the logger
+var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
 var dutchTimeZone = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
 

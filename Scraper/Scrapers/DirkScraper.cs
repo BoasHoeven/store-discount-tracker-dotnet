@@ -71,8 +71,6 @@ public sealed class DirkScraper : IStoreScraper
         try
         {
             var products = JsonSerializer.Deserialize<List<ProductData>>(content);
-            var productsWherePriceIsNull = products
-                .Where(p => p.ProductPrices.Any(pp => pp.RegularPrice == null));
 
             return products?.FirstOrDefault(product =>
                 string.Equals(GetProductFullName(product), productName, StringComparison.OrdinalIgnoreCase) &&

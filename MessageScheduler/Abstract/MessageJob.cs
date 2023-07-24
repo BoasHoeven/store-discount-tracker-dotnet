@@ -57,17 +57,19 @@ public abstract class MessageJob : IJob
                 var weekDiscounts = weekGroup.ToList();
                 var weekStart = weekDiscounts.Min(d => d.StartDate);
                 var weekEnd = weekDiscounts.Max(d => d.EndDate);
-
-                var weekDayRange = $"{FormatStartDate(weekStart)} t/m {FormatEndDate(weekEnd)}";
-
-                message.AppendLine($"<b>Geldig</b>: {weekDayRange}");
-
+                var isFullWeek = weekStart.DayOfWeek == DayOfWeek.Monday && weekEnd.DayOfWeek == DayOfWeek.Sunday;
+                
+                if (!isFullWeek) {
+                    var weekDayRange = $"{FormatStartDate(weekStart)} t/m {FormatEndDate(weekEnd)}";
+                    message.AppendLine($"<b>Geldig</b>: {weekDayRange}");
+                }
+                
                 foreach (var discount in weekDiscounts)
                 {
                     if (!string.IsNullOrEmpty(discount.DiscountMessage))
                     {
                         var discountDetails = discount.DiscountMessage.Split('&');
-                        message.AppendLine($"- {discount.Product.Name} ({discount.Product.Price}");
+                        message.AppendLine($"- {discount.Product} ({discount.Product.Price})");
                         foreach (var detail in discountDetails)
                         {
                             message.AppendLine($"  - {detail.Trim()}");
@@ -75,7 +77,7 @@ public abstract class MessageJob : IJob
                     }
                     else
                     {
-                        message.AppendLine($"- {discount.Product.Name} was <s>€{discount.OldPrice}</s> nu €{discount.NewPrice}!");
+                        message.AppendLine($"- {discount.Product} was <s>€{discount.OldPrice}</s> nu €{discount.NewPrice}!");
                     }
                 }
 
