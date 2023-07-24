@@ -51,41 +51,50 @@ public abstract class MessageJob : IJob
             var message = new StringBuilder();
             message.AppendLine($"<b>{storeName}</b>");
 
-            var groupedByWeek = storeDiscounts.GroupBy(d => d.StartDate.GetWeekNumber());
-            foreach (var weekGroup in groupedByWeek)
+            var weekStart = storeDiscounts.Min(d => d.StartDate);
+            var weekEnd = storeDiscounts.Max(d => d.EndDate);
+            var isFullWeek = weekStart.DayOfWeek == DayOfWeek.Monday && weekEnd.DayOfWeek == DayOfWeek.Sunday;
+            
+            if (!isFullWeek)
             {
-                var weekDiscounts = weekGroup.ToList();
-                var weekStart = weekDiscounts.Min(d => d.StartDate);
-                var weekEnd = weekDiscounts.Max(d => d.EndDate);
-                var isFullWeek = weekStart.DayOfWeek == DayOfWeek.Monday && weekEnd.DayOfWeek == DayOfWeek.Sunday;
-                
-                if (!isFullWeek) {
-                    var weekDayRange = $"{FormatStartDate(weekStart)} t/m {FormatEndDate(weekEnd)}";
-                    message.AppendLine($"<b>Geldig</b>: {weekDayRange}");
-                }
-                
-                foreach (var discount in weekDiscounts)
-                {
-                    if (!string.IsNullOrEmpty(discount.DiscountMessage))
-                    {
-                        var discountDetails = discount.DiscountMessage.Split('&');
-                        message.AppendLine($"- {discount.Product} ({discount.Product.Price})");
-                        foreach (var detail in discountDetails)
-                        {
-                            message.AppendLine($"  - {detail.Trim()}");
-                        }
-                    }
-                    else
-                    {
-                        message.AppendLine($"- {discount.Product} was <s>€{discount.OldPrice}</s> nu €{discount.NewPrice}!");
-                    }
-                }
-
-                allMessages.AppendLine(message.ToString());
+                var weekDayRange = FormatDateString(weekStart, weekEnd);
+                message.AppendLine($"<b>Geldig</b>: {weekDayRange}");
             }
+                
+            foreach (var discount in storeDiscounts)
+            {
+                if (!string.IsNullOrEmpty(discount.DiscountMessage))
+                {
+                    var discountDetails = discount.DiscountMessage.Split('&');
+                    message.AppendLine($"- {discount.Product} (€{discount.Product.Price})");
+                    foreach (var detail in discountDetails)
+                    {
+                        message.AppendLine($"  - {detail.Trim()}");
+                    }
+                }
+                else
+                {
+                    message.AppendLine($"- {discount.Product} was <s>€{discount.OldPrice}</s> nu €{discount.NewPrice}!");
+                }
+            }
+
+            allMessages.AppendLine(message.ToString());
         }
         
         await botClient.SendTextMessageAsync(telegramChannelConfiguration.ChannelId, allMessages.ToString(), parseMode: ParseMode.Html);
+    }
+
+    private static string FormatDateString(DateTime startDate, DateTime endDate)
+    {
+        var utcNow = DateTime.UtcNow;
+        var startDateWeekDiff = GetWeekDiff(startDate, utcNow);
+
+        if (startDateWeekDiff < 0)
+        {
+            return $"t/m {endDate.ToString("dddd", new CultureInfo("nl-NL"))} {endDate.ToString("dd MMMM yyyy", new CultureInfo("nl-NL"))}";
+        }
+
+        return $"{FormatStartDate(startDate)} t/m {FormatEndDate(endDate)}";
     }
 
     private static string FormatStartDate(DateTime date)
@@ -108,6 +117,6 @@ public abstract class MessageJob : IJob
 
     private static int GetWeekDiff(DateTime dateTimeA, DateTime dateTimeB)
     {
-        return Math.Abs(dateTimeA.GetWeekNumber() - dateTimeB.GetWeekNumber());
+        return dateTimeA.GetWeekNumber() - dateTimeB.GetWeekNumber();
     }
 }

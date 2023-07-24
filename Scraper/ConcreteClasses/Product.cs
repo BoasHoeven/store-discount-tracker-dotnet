@@ -46,6 +46,6 @@ public sealed class Product : IProduct
     
     public override string ToString()
     {
-        return $"{Name} ({UnitSize})";
+        return $"{Name} {UnitSize}";
     }
 }
