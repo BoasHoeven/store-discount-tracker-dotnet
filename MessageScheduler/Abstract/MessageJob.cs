@@ -17,6 +17,7 @@ public abstract class MessageJob : IJob
 
     private readonly ITelegramBotClient botClient;
     private readonly TelegramChannelConfiguration telegramChannelConfiguration;
+    private static readonly CultureInfo Culture = new("nl-NL");
 
     protected MessageJob(ITelegramBotClient botClient, StoreDiscountService storeDiscountService, IOptions<TelegramChannelConfiguration> channelConfiguration)
     {
@@ -91,7 +92,7 @@ public abstract class MessageJob : IJob
 
         if (startDateWeekDiff < 0)
         {
-            return $"t/m {endDate.ToString("dddd", new CultureInfo("nl-NL"))} {endDate.ToString("dd MMMM yyyy", new CultureInfo("nl-NL"))}";
+            return $"t/m {endDate.ToString("dddd", Culture)} {endDate.ToString("dd MMMM yyyy", Culture)}";
         }
 
         return $"{FormatStartDate(startDate)} t/m {FormatEndDate(endDate)}";
@@ -99,7 +100,7 @@ public abstract class MessageJob : IJob
 
     private static string FormatStartDate(DateTime date)
     {
-        return date.ToString("dddd", new CultureInfo("nl-NL"));
+        return date.ToString("dddd", Culture);
     }
 
     private static string FormatEndDate(DateTime endDate)
@@ -109,9 +110,9 @@ public abstract class MessageJob : IJob
 
         return weekDiff switch
         {
-            0 => endDate.ToString("dddd", new CultureInfo("nl-NL")),
-            1 => "volgende week " + endDate.ToString("dddd", new CultureInfo("nl-NL")),
-            _ => endDate.ToString("dd MMMM yyyy", new CultureInfo("nl-NL"))
+            0 => endDate.ToString("dddd", Culture),
+            1 => "volgende week " + endDate.ToString("dddd", Culture),
+            _ => endDate.ToString("dd MMMM yyyy", Culture)
         };
     }
 
