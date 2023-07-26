@@ -42,15 +42,15 @@ public abstract class MessageJob : IJob
 
         var groupedByStore = discounts.GroupBy(d => d.Product.StoreName);
 
-        var allMessages = new StringBuilder($"{prefix}\n\n");
+        var message = new StringBuilder($"{prefix}\n\n");
 
         foreach (var storeGroup in groupedByStore)
         {
             var storeName = storeGroup.Key;
             var storeDiscounts = storeGroup.ToList();
-
-            var message = new StringBuilder();
+            
             message.AppendLine($"<b>{storeName}</b>");
+            message.AppendLine();
 
             var weekStart = storeDiscounts.Min(d => d.StartDate);
             var weekEnd = storeDiscounts.Max(d => d.EndDate);
@@ -77,12 +77,12 @@ public abstract class MessageJob : IJob
                 {
                     message.AppendLine($"- {discount.Product}\n  • was <s>€{discount.OldPrice}</s> nu €{discount.NewPrice}!");
                 }
-            }
 
-            allMessages.AppendLine(message.ToString());
+                message.AppendLine();
+            }
         }
         
-        await botClient.SendTextMessageAsync(telegramChannelConfiguration.ChannelId, allMessages.ToString(), parseMode: ParseMode.Html);
+        await botClient.SendTextMessageAsync(telegramChannelConfiguration.ChannelId, message.ToString(), parseMode: ParseMode.Html);
     }
 
     private static string FormatDateString(DateTime startDate, DateTime endDate)
