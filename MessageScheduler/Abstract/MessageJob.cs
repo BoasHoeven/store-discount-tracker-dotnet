@@ -43,7 +43,6 @@ public abstract class MessageJob : IJob
         var groupedByStore = discounts.GroupBy(d => d.Product.StoreName);
 
         var message = new StringBuilder($"{prefix}\n\n");
-
         foreach (var storeGroup in groupedByStore)
         {
             var storeName = storeGroup.Key;
