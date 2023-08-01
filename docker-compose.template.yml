@@ -1,0 +1,22 @@
+services:
+  telegram_bot:
+    image: boascontainers/store-discount-telegram-bot:latest
+    volumes:
+      - shared_data:/app/data
+    environment:
+      - PRODUCTS_JSON_PATH=/app/data/Products.json
+      - BotConfiguration__BotToken=${BOT_TOKEN}
+      - TZ=Europe/Amsterdam
+    restart: unless-stopped
+  message_scheduler:
+    image: boascontainers/store-discount-message-scheduler:latest
+    volumes:
+      - shared_data:/app/data
+    environment:
+      - PRODUCTS_JSON_PATH=/app/data/Products.json
+      - BotConfiguration__BotToken=${BOT_TOKEN}
+      - TelegramChannelConfiguration__ChannelId=${CHANNEL_ID}
+      - TZ=Europe/Amsterdam
+    restart: unless-stopped
+volumes:
+  shared_data:
