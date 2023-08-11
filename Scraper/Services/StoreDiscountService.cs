@@ -8,6 +8,7 @@ public sealed class StoreDiscountService
 {
     private readonly IEnumerable<IStore> stores;
     private readonly ProductService productService;
+    private readonly Random random;
 
     public StoreDiscountService(IEnumerable<IStore> stores, ProductService productService)
     {
@@ -16,23 +17,30 @@ public sealed class StoreDiscountService
 
         this.stores = stores;
         this.productService = productService;
+        random = new Random();
     }
 
     public async Task<IEnumerable<ProductDiscount>> GetDiscounts()
     {
         var products = productService.GetAllProducts();
         var productsByStore = products.GroupBy(x => x.StoreName);
-        
+            
         var discountedProducts = new List<ProductDiscount>();
         foreach (var group in productsByStore)
         {
             var store = stores.SingleOrDefault(x => x.StoreName == group.Key);
             if (store is null) continue;
 
-            var tasks = group.Select(product => store.Scraper.IsOnDiscount(product));
-            var results = await Task.WhenAll(tasks);
-            var productDiscounts = results.Where(productDiscount => productDiscount is not null);
-            discountedProducts.AddRange(productDiscounts!);
+            foreach (var product in group)
+            {
+                var result = await store.Scraper.IsOnDiscount(product);
+                if (result is not null)
+                {
+                    discountedProducts.Add(result);
+                }
+
+                await Task.Delay(random.Next(500, 5000));
+            }
         }
 
         return discountedProducts;
