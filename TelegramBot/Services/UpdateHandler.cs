@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Scraper.Contracts;
 using Scraper.Services;
@@ -80,6 +81,7 @@ public sealed class UpdateHandler : IUpdateHandler
                 "/list"   => ListProducts(botClient, message, cancellationToken),
                 "/add"    => Add(botClient, message, cancellationToken),
                 "/remove" => Remove(botClient, message, cancellationToken),
+                "/export" => ExportProducts(botClient, message, cancellationToken),
                 _         => Usage(botClient, message, cancellationToken)
             };
             await action;
@@ -116,13 +118,42 @@ public sealed class UpdateHandler : IUpdateHandler
                 text: "Send me the name of the product you want to remove",
                 cancellationToken: cancellationToken);
         }
+        
+        async Task<Message> ExportProducts(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+        {
+            var products = productService.GetAllProducts().ToList();
+            if (!products.Any())
+            {
+                return await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id,
+                    text: "No products to export.",
+                    cancellationToken: cancellationToken);
+            }
+    
+            var filePath = GenerateJsonFile(products);
+
+            try
+            {
+                await using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                var fileName = $"Products_{DateTime.UtcNow:yyyyMMdd_HHmmss}.txt";
+                return await botClient.SendDocumentAsync(
+                    chatId: message.Chat.Id,
+                    document: InputFile.FromStream(stream, fileName),
+                    cancellationToken: cancellationToken);
+            }
+            finally
+            {
+                System.IO.File.Delete(filePath);
+            }
+        }
 
         static async Task<Message> Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
             const string usage = "Usage:\n" +
                                  "/list - display products\n" +
                                  "/add - add a product from a URL\n" +
-                                 "/remove - remove a product by its name or a part of its name";
+                                 "/remove - remove a product by its name or a part of its name\n" +
+                                 "/export - exports all products to a file";
 
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
@@ -205,6 +236,16 @@ public sealed class UpdateHandler : IUpdateHandler
             default:
                 break;
         }
+    }
+    
+    private static string GenerateJsonFile(IEnumerable<IProduct> products)
+    {
+        var jsonString = JsonSerializer.Serialize(products, new JsonSerializerOptions { WriteIndented = true });
+    
+        var filePath = Path.Combine(Path.GetTempPath(), $"Products_{DateTime.UtcNow:yyyyMMdd_HHmmss}.json");
+        System.IO.File.WriteAllText(filePath, jsonString);
+
+        return filePath;
     }
 
     private Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
