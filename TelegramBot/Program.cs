@@ -12,6 +12,9 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<UpdateHandler>();
         services.AddScoped<ReceiverService>();
         services.AddHostedService<PollingService>();
+        services.AddScoped<CallbackService>();
+        services.AddScoped<ConversationService>();
+        services.AddScoped<CommandService>();
     }).Build();
 
 await host.RunAsync();

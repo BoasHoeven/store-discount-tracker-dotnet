@@ -4,5 +4,6 @@ public enum ConversationState
 {
     Normal,
     WaitingForProductUrl,
-    WaitingForRemoveProductName
+    WaitingForRemoveProductName,
+    WaitingForImportFile
 }

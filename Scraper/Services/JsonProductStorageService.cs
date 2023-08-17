@@ -59,6 +59,7 @@ public sealed class JsonProductStorageService : IProductStorage
     }
 
     public IEnumerable<IProduct> GetAllProducts() => productRepository.GetProducts();
+    
     public IEnumerable<IProduct> GetProductsByName(string message)
     {
         return productRepository.GetProductsByName(message);
