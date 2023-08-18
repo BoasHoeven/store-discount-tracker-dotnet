@@ -11,13 +11,13 @@ public sealed class UpdateHandler : IUpdateHandler
     private readonly ILogger<UpdateHandler> logger;
     private readonly CommandService commandService;
     private readonly CallbackService callbackService;
-    
+
     public UpdateHandler(ILogger<UpdateHandler> logger, CommandService commandService, CallbackService callbackService)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(commandService);
         ArgumentNullException.ThrowIfNull(callbackService);
-        
+
         this.logger = logger;
         this.commandService = commandService;
         this.callbackService = callbackService;
@@ -28,7 +28,6 @@ public sealed class UpdateHandler : IUpdateHandler
         var handler = update switch
         {
             { Message: { } message }             => commandService.HandleCommandAsync(botClient, message, cancellationToken),
-            // { EditedMessage: { } message }       => commandService.HandleCommandAsync(botClient, message, cancellationToken),
             { CallbackQuery: { } callbackQuery } => callbackService.HandleCallbackAsync(botClient, callbackQuery, cancellationToken),
             _                                    => UnknownUpdateHandlerAsync(update, cancellationToken)
         };
