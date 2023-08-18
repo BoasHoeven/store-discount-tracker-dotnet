@@ -6,7 +6,7 @@ using Telegram.Bot.Types;
 using TelegramBot.Abstract;
 using TelegramBot.Enums;
 
-namespace TelegramBot.Services.Conversations;
+namespace TelegramBot.Conversations;
 
 public class WaitingForImportFileStrategy : IConversationStrategy
 {

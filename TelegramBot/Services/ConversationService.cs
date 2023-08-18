@@ -2,8 +2,8 @@ using Scraper.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramBot.Abstract;
+using TelegramBot.Conversations;
 using TelegramBot.Enums;
-using TelegramBot.Services.Conversations;
 
 namespace TelegramBot.Services;
 

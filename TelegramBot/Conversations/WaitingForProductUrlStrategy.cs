@@ -5,7 +5,7 @@ using Telegram.Bot.Types.Enums;
 using TelegramBot.Abstract;
 using TelegramBot.Enums;
 
-namespace TelegramBot.Services.Conversations;
+namespace TelegramBot.Conversations;
 
 public class WaitingForProductUrlStrategy : IConversationStrategy
 {
