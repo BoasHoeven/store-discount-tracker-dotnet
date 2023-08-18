@@ -17,11 +17,21 @@ public sealed class CommandService
 {
     private readonly ProductService productService;
     private readonly ConversationService conversationService;
+    private readonly Dictionary<string, Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>> commandHandlers;
 
     public CommandService(ProductService productService, ConversationService conversationService)
     {
         this.productService = productService;
         this.conversationService = conversationService;
+
+        // Initialize command handlers directly in the constructor
+        var methods = typeof(CommandService).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance);
+        commandHandlers = methods
+            .Where(m => Attribute.IsDefined(m, typeof(CommandAttribute)))
+            .ToDictionary(
+                m => (Attribute.GetCustomAttribute(m, typeof(CommandAttribute)) as CommandAttribute)!.CommandName,
+                m => (Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>)Delegate.CreateDelegate(typeof(Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>), this, m)
+            );
     }
 
     public async Task HandleCommandAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
@@ -32,18 +42,15 @@ public sealed class CommandService
             return;
         }
 
-        // Parse the command from the message text
-        var action = (message.Text ?? string.Empty).Split(' ')[0] switch
+        var commandName = (message.Text ?? string.Empty).Split(' ')[0];
+        if (commandHandlers.TryGetValue(commandName, out var commandAction))
         {
-            "/list"   => ListProducts(botClient, message, cancellationToken),
-            "/add"    => Add(botClient, message, cancellationToken),
-            "/remove" => Remove(botClient, message, cancellationToken),
-            "/export" => ExportProducts(botClient, message, cancellationToken),
-            "/import" => InitiateImport(botClient, message, cancellationToken),
-            _         => Usage(botClient, message, cancellationToken)
-        };
-
-        await action;
+            await commandAction(botClient, message, cancellationToken);
+        }
+        else
+        {
+            await Usage(botClient, message, cancellationToken);
+        }
     }
 
     [Command("/list", "display products")]
@@ -124,7 +131,7 @@ public sealed class CommandService
             cancellationToken: cancellationToken);
     }
 
-    private static async Task<Message> Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    private static async Task Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         var methods = typeof(CommandService).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -140,7 +147,7 @@ public sealed class CommandService
             usageText.AppendLine($"{command!.CommandName} - {command.Description}");
         }
 
-        return await botClient.SendTextMessageAsync(
+        await botClient.SendTextMessageAsync(
             chatId: message.Chat.Id,
             text: usageText.ToString(),
             replyMarkup: new ReplyKeyboardRemove(),
