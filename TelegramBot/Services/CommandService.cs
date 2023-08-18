@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Text;
 using Scraper.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -6,6 +8,7 @@ using System.Text.Json;
 using Scraper.Contracts;
 using SharedServices.Extensions;
 using Telegram.Bot.Types.ReplyMarkups;
+using TelegramBot.Attributes;
 using TelegramBot.Enums;
 
 namespace TelegramBot.Services;
@@ -43,6 +46,7 @@ public sealed class CommandService
         await action;
     }
 
+    [Command("/list", "display products")]
     private async Task<Message> ListProducts(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         var products = productService.GetAllProducts();
@@ -55,6 +59,8 @@ public sealed class CommandService
             cancellationToken: cancellationToken);
     }
 
+    [Command("/add", "add a product from a URL")]
+
     private async Task<Message> Add(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         // Mark the chat state as waiting for product URL
@@ -66,6 +72,7 @@ public sealed class CommandService
             cancellationToken: cancellationToken);
     }
 
+    [Command("/remove", "remove a product by name")]
     private async Task<Message> Remove(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         // Mark the chat state as waiting for product name
@@ -77,6 +84,7 @@ public sealed class CommandService
             cancellationToken: cancellationToken);
     }
 
+    [Command("/export", "exports all products to a file")]
     private async Task<Message> ExportProducts(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         var products = productService.GetAllProducts().ToList();
@@ -105,6 +113,7 @@ public sealed class CommandService
         }
     }
 
+    [Command("/import", "import products from a file")]
     private async Task<Message> InitiateImport(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         // Set the chat state as waiting for the import file
@@ -118,16 +127,23 @@ public sealed class CommandService
 
     private static async Task<Message> Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
-        const string usage = "Usage:\n" +
-                             "/list - display products\n" +
-                             "/add - add a product from a URL\n" +
-                             "/remove - remove a product by its name or a part of its name\n" +
-                             "/export - exports all products to a file\n" +
-                             "/import - import products from a file";
+        var methods = typeof(CommandService).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance);
+
+        var commands = methods
+            .Where(m => Attribute.IsDefined(m, typeof(CommandAttribute)))
+            .Select(m => Attribute.GetCustomAttribute(m, typeof(CommandAttribute)) as CommandAttribute)
+            .ToList();
+
+        var usageText = new StringBuilder("Usage:\n");
+
+        foreach (var command in commands)
+        {
+            usageText.AppendLine($"{command!.CommandName} - {command.Description}");
+        }
 
         return await botClient.SendTextMessageAsync(
             chatId: message.Chat.Id,
-            text: usage,
+            text: usageText.ToString(),
             replyMarkup: new ReplyKeyboardRemove(),
             cancellationToken: cancellationToken);
     }
