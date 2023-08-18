@@ -5,7 +5,7 @@ using ProductTelegramAPI.Attributes;
 using ProductTelegramAPI.Enums;
 using Scraper.Contracts;
 using Scraper.Services;
-using SharedServices.Extensions;
+using SharedUtilities.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;

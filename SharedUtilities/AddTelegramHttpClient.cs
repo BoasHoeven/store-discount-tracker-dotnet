@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using SharedServices.Configuration;
-using SharedServices.Configuration.Validations;
+using SharedUtilities.Configuration;
+using SharedUtilities.Configuration.Validations;
 using Telegram.Bot;
 
-namespace SharedServices;
+namespace SharedUtilities;
 
 public static class ServiceCollectionExtensions
 {
@@ -14,7 +14,7 @@ public static class ServiceCollectionExtensions
         services.AddOptions<BotConfiguration>()
             .Bind(configuration.GetSection(BotConfiguration.Configuration))
             .ValidateOnStart();
-        
+
         services.AddSingleton<IValidateOptions<BotConfiguration>, BotConfigurationValidation>();
 
         services.AddHttpClient("telegram_bot_client")
@@ -24,7 +24,7 @@ public static class ServiceCollectionExtensions
                 TelegramBotClientOptions options = new(botConfig.BotToken);
                 return new TelegramBotClient(options, httpClient);
             });
-        
+
         return services;
     }
 }

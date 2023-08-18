@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace SharedServices.Extensions;
+namespace SharedUtilities.Extensions;
 
 public static class DateTimeExtensions
 {

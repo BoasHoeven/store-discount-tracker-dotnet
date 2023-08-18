@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 using ProductTelegramAPI.Services;
 using ProductTelegramAPI.Services.Backbone;
 using Scraper.Extensions;
-using SharedServices;
+using SharedUtilities;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>

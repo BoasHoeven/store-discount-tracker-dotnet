@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using Quartz;
 using Scraper.ConcreteClasses;
 using Scraper.Services;
-using SharedServices.Extensions;
+using SharedUtilities.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 

@@ -1,6 +1,6 @@
 using Scraper.ConcreteClasses;
 using Scraper.Contracts;
-using SharedServices.Extensions;
+using SharedUtilities.Extensions;
 
 namespace Scraper.Services;
 

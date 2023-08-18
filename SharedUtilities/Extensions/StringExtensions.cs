@@ -1,4 +1,4 @@
-namespace SharedServices.Extensions;
+namespace SharedUtilities.Extensions;
 
 public static class StringExtensions
 {

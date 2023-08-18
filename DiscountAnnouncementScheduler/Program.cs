@@ -8,7 +8,7 @@ using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
 using Scraper.Extensions;
-using SharedServices;
+using SharedUtilities;
 
 var services = new ServiceCollection();
 

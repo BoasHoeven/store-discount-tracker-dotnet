@@ -1,4 +1,4 @@
-namespace SharedServices.Configuration;
+namespace SharedUtilities.Configuration;
 
 public sealed class BotConfiguration
 {

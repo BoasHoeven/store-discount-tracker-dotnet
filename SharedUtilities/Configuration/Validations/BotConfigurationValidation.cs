@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.Extensions.Options;
 
-namespace SharedServices.Configuration.Validations;
+namespace SharedUtilities.Configuration.Validations;
 
 public sealed class BotConfigurationValidation : IValidateOptions<BotConfiguration>
 {
