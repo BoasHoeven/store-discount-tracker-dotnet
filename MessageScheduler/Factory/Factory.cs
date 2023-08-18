@@ -6,16 +6,16 @@ namespace MessageScheduler.Factory;
 
 public class JobFactory : IJobFactory
 {
-    private readonly IServiceProvider container;
+    private readonly IServiceProvider serviceProvider;
 
-    public JobFactory(IServiceProvider container)
+    public JobFactory(IServiceProvider serviceProvider)
     {
-        this.container = container;
+        this.serviceProvider = serviceProvider;
     }
 
     public IJob NewJob(TriggerFiredBundle bundle, IScheduler scheduler)
     {
-        return container.GetRequiredService(bundle.JobDetail.JobType) as IJob;
+        return (serviceProvider.GetRequiredService(bundle.JobDetail.JobType) as IJob)!;
     }
 
     public void ReturnJob(IJob job)
