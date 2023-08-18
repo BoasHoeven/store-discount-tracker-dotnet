@@ -25,12 +25,14 @@ public sealed class CommandService
         this.conversationService = conversationService;
 
         commandHandlers = new Lazy<Dictionary<string, Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>>>(() => {
-            var methods = typeof(CommandService).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance);
-            return methods
-                .Where(m => Attribute.IsDefined(m, typeof(CommandAttribute)))
+            return GetCommandMethodsAndAttributes()
                 .ToDictionary(
-                    m => (Attribute.GetCustomAttribute(m, typeof(CommandAttribute)) as CommandAttribute)!.CommandName,
-                    m => (Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>)Delegate.CreateDelegate(typeof(Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>), this, m)
+                    tuple => tuple.Command.CommandName,
+                    tuple =>
+                        (Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>)Delegate.CreateDelegate(
+                            typeof(Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>),
+                            this,
+                            tuple.Method)
                 );
         });
     }
@@ -132,14 +134,9 @@ public sealed class CommandService
             cancellationToken: cancellationToken);
     }
 
-    private static async Task Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    private async Task Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
-        var methods = typeof(CommandService).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance);
-
-        var commands = methods
-            .Where(m => Attribute.IsDefined(m, typeof(CommandAttribute)))
-            .Select(m => Attribute.GetCustomAttribute(m, typeof(CommandAttribute)) as CommandAttribute)
-            .ToList();
+        var commands = GetCommandMethodsAndAttributes().Select(tuple => tuple.Command).ToList();
 
         var usageText = new StringBuilder("Usage:\n");
 
@@ -181,4 +178,11 @@ public sealed class CommandService
 
         return filePath;
     }
+
+    private IEnumerable<(MethodInfo Method, CommandAttribute Command)> GetCommandMethodsAndAttributes() =>
+        typeof(CommandService)
+            .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+            .Where(m => Attribute.IsDefined(m, typeof(CommandAttribute)))
+            .Select(m => (Method: m, Command: Attribute.GetCustomAttribute(m, typeof(CommandAttribute)) as CommandAttribute))
+            .Where(tuple => tuple.Command != null)!;
 }
