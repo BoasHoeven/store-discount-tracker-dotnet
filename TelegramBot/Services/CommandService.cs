@@ -134,7 +134,10 @@ public sealed class CommandService
 
     private static string FormatProductsByStore(IEnumerable<IProduct> products)
     {
-        var productGroups = products.GroupBy(p => p.StoreName);
+        var productGroups = products
+            .GroupBy(p => p.StoreName)
+            .OrderBy(g => g.Key);
+
         var storeProductStrings = new List<string>();
         foreach (var group in productGroups)
         {
