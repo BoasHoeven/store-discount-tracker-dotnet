@@ -17,21 +17,22 @@ public sealed class CommandService
 {
     private readonly ProductService productService;
     private readonly ConversationService conversationService;
-    private readonly Dictionary<string, Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>> commandHandlers;
+    private readonly Lazy<Dictionary<string, Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>>> commandHandlers;
 
     public CommandService(ProductService productService, ConversationService conversationService)
     {
         this.productService = productService;
         this.conversationService = conversationService;
 
-        // Initialize command handlers directly in the constructor
-        var methods = typeof(CommandService).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance);
-        commandHandlers = methods
-            .Where(m => Attribute.IsDefined(m, typeof(CommandAttribute)))
-            .ToDictionary(
-                m => (Attribute.GetCustomAttribute(m, typeof(CommandAttribute)) as CommandAttribute)!.CommandName,
-                m => (Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>)Delegate.CreateDelegate(typeof(Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>), this, m)
-            );
+        commandHandlers = new Lazy<Dictionary<string, Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>>>(() => {
+            var methods = typeof(CommandService).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance);
+            return methods
+                .Where(m => Attribute.IsDefined(m, typeof(CommandAttribute)))
+                .ToDictionary(
+                    m => (Attribute.GetCustomAttribute(m, typeof(CommandAttribute)) as CommandAttribute)!.CommandName,
+                    m => (Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>)Delegate.CreateDelegate(typeof(Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>), this, m)
+                );
+        });
     }
 
     public async Task HandleCommandAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
@@ -43,7 +44,7 @@ public sealed class CommandService
         }
 
         var commandName = (message.Text ?? string.Empty).Split(' ')[0];
-        if (commandHandlers.TryGetValue(commandName, out var commandAction))
+        if (commandHandlers.Value.TryGetValue(commandName, out var commandAction))
         {
             await commandAction(botClient, message, cancellationToken);
         }
