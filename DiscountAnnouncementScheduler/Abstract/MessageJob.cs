@@ -47,20 +47,20 @@ public abstract class MessageJob : IJob
         {
             var storeName = storeGroup.Key;
             var storeDiscounts = storeGroup.ToList();
-            
+
             message.AppendLine($"<b>{storeName}</b>");
             message.AppendLine();
 
             var weekStart = storeDiscounts.Min(d => d.StartDate);
             var weekEnd = storeDiscounts.Max(d => d.EndDate);
             var isFullWeek = weekStart.DayOfWeek == DayOfWeek.Monday && weekEnd.DayOfWeek == DayOfWeek.Sunday;
-            
+
             if (!isFullWeek)
             {
                 var weekDayRange = FormatDateString(weekStart, weekEnd);
                 message.AppendLine($"<b>Geldig</b>: {weekDayRange}");
             }
-                
+
             foreach (var discount in storeDiscounts)
             {
                 if (!string.IsNullOrEmpty(discount.DiscountMessage))
@@ -80,7 +80,7 @@ public abstract class MessageJob : IJob
                 message.AppendLine();
             }
         }
-        
+
         await botClient.SendTextMessageAsync(telegramChannelConfiguration.ChannelId, message.ToString(), parseMode: ParseMode.Html);
     }
 

@@ -85,5 +85,5 @@ var currentWeekJobFireTimeUtc = currentWeekTriggerInfo!.GetNextFireTimeUtc();
 var currentWeekJobFireTime = TimeZoneInfo.ConvertTimeFromUtc(currentWeekJobFireTimeUtc!.Value.DateTime, dutchTimeZone);
 logger.LogInformation("CurrentWeekDiscountJob is scheduled to run next at: {CurrentWeekJobFireTime}", currentWeekJobFireTime);
 
-// Stall indefinitely 
+// Stall indefinitely
 await Task.Delay(Timeout.Infinite);
