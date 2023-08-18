@@ -1,8 +1,8 @@
 using DiscountAnnouncementScheduler.Abstract;
 using DiscountAnnouncementScheduler.Configuration;
 using Microsoft.Extensions.Options;
+using ProductMonitoringService.Services;
 using Quartz;
-using Scraper.Services;
 using Telegram.Bot;
 
 namespace DiscountAnnouncementScheduler.Jobs;

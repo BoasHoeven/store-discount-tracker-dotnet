@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Scraper.Contracts;
+namespace ProductMonitoringService.Contracts;
 
 public interface IStore
 {

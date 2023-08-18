@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.RateLimit;
 
-namespace Scraper.Policies;
+namespace ProductMonitoringService.Policies;
 
 public sealed class AlbertHeijnRateLimitPolicy : DelegatingHandler
 {

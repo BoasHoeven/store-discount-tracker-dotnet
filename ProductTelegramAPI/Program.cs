@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ProductMonitoringService.Extensions;
 using ProductTelegramAPI.Services;
 using ProductTelegramAPI.Services.Backbone;
-using Scraper.Extensions;
 using SharedUtilities;
 
 var host = Host.CreateDefaultBuilder(args)

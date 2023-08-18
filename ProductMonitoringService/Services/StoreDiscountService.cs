@@ -1,8 +1,8 @@
-using Scraper.ConcreteClasses;
-using Scraper.Contracts;
+using ProductMonitoringService.ConcreteClasses;
+using ProductMonitoringService.Contracts;
 using SharedUtilities.Extensions;
 
-namespace Scraper.Services;
+namespace ProductMonitoringService.Services;
 
 public sealed class StoreDiscountService
 {

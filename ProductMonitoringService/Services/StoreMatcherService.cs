@@ -1,6 +1,6 @@
-using Scraper.Contracts;
+using ProductMonitoringService.Contracts;
 
-namespace Scraper.Services;
+namespace ProductMonitoringService.Services;
 
 public sealed class StoreMatcherService
 {

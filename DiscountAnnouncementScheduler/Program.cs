@@ -4,10 +4,10 @@ using DiscountAnnouncementScheduler.Jobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using ProductMonitoringService.Extensions;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
-using Scraper.Extensions;
 using SharedUtilities;
 
 var services = new ServiceCollection();

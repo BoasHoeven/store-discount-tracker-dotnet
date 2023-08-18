@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Scraper.Services;
+namespace ProductMonitoringService.Services;
 
 public partial class UrlExtractorService
 {

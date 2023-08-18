@@ -1,7 +1,7 @@
+using ProductMonitoringService.Services;
 using ProductTelegramAPI.Abstract;
 using ProductTelegramAPI.Conversations;
 using ProductTelegramAPI.Enums;
-using Scraper.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 

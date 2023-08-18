@@ -1,10 +1,10 @@
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Scraper.ConcreteClasses;
-using Scraper.Contracts;
+using ProductMonitoringService.ConcreteClasses;
+using ProductMonitoringService.Contracts;
 
-namespace Scraper.Scrapers;
+namespace ProductMonitoringService.Scrapers;
 
 public sealed class AlbertHeijnScraper : IStoreScraper
 {

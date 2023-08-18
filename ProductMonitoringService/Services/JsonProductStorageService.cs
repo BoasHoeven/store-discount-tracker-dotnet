@@ -1,8 +1,8 @@
 using System.Reflection;
-using Scraper.ConcreteClasses;
-using Scraper.Contracts;
+using ProductMonitoringService.ConcreteClasses;
+using ProductMonitoringService.Contracts;
 
-namespace Scraper.Services;
+namespace ProductMonitoringService.Services;
 
 public sealed class JsonProductStorageService : IProductStorage
 {

@@ -1,8 +1,8 @@
 using System.Text.RegularExpressions;
-using Scraper.Contracts;
-using Scraper.Scrapers;
+using ProductMonitoringService.Contracts;
+using ProductMonitoringService.Scrapers;
 
-namespace Scraper.Stores;
+namespace ProductMonitoringService.Stores;
 
 public sealed class DirkStore : IStore
 {

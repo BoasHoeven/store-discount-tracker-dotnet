@@ -1,10 +1,10 @@
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using ProductMonitoringService.Contracts;
+using ProductMonitoringService.Services;
 using ProductTelegramAPI.Attributes;
 using ProductTelegramAPI.Enums;
-using Scraper.Contracts;
-using Scraper.Services;
 using SharedUtilities.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;

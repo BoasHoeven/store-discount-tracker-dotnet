@@ -1,8 +1,8 @@
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
-using Scraper.Policies;
+using ProductMonitoringService.Policies;
 
-namespace Scraper.Extensions;
+namespace ProductMonitoringService.Extensions;
 
 public static class AlbertHeijnStoreServices
 {

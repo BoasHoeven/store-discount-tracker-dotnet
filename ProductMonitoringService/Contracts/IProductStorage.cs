@@ -1,6 +1,6 @@
-using Scraper.ConcreteClasses;
+using ProductMonitoringService.ConcreteClasses;
 
-namespace Scraper.Contracts;
+namespace ProductMonitoringService.Contracts;
 
 public interface IProductStorage
 {

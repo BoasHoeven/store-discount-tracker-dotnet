@@ -1,4 +1,4 @@
-namespace Scraper.Contracts;
+namespace ProductMonitoringService.Contracts;
 
 public interface IProduct
 {

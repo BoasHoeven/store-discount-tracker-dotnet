@@ -1,9 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
-using Scraper.ConcreteClasses;
-using Scraper.Contracts;
-using Scraper.Services;
+using ProductMonitoringService.ConcreteClasses;
+using ProductMonitoringService.Contracts;
+using ProductMonitoringService.Services;
 
-namespace Scraper.Extensions;
+namespace ProductMonitoringService.Extensions;
 
 public static class ScraperServices
 {

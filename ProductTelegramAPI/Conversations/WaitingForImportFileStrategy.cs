@@ -1,8 +1,8 @@
 using System.Text.Json;
+using ProductMonitoringService.ConcreteClasses;
+using ProductMonitoringService.Services;
 using ProductTelegramAPI.Abstract;
 using ProductTelegramAPI.Enums;
-using Scraper.ConcreteClasses;
-using Scraper.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 

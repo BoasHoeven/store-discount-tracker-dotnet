@@ -1,6 +1,6 @@
-using Scraper.Contracts;
+using ProductMonitoringService.Contracts;
 
-namespace Scraper.ConcreteClasses;
+namespace ProductMonitoringService.ConcreteClasses;
 
 public sealed class ProductRepository
 {

@@ -1,13 +1,13 @@
 using System.Text.RegularExpressions;
-using Scraper.Contracts;
-using Scraper.Scrapers;
+using ProductMonitoringService.Contracts;
+using ProductMonitoringService.Scrapers;
 
-namespace Scraper.Stores;
+namespace ProductMonitoringService.Stores;
 
 public sealed class AlbertHeijnStore : IStore
 {
     public IStoreScraper Scraper { get; }
-    
+
     public AlbertHeijnStore(IEnumerable<IStoreScraper> scrapers)
     {
         Scraper = scrapers.FirstOrDefault(x => x is AlbertHeijnScraper) ?? throw new InvalidOperationException();

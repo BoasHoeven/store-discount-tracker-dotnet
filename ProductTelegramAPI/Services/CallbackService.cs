@@ -1,4 +1,4 @@
-using Scraper.Services;
+using ProductMonitoringService.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;

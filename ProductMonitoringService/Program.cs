@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Scraper.Extensions;
-using Scraper.Services;
+using ProductMonitoringService.Extensions;
+using ProductMonitoringService.Services;
 
 var host = Host.CreateDefaultBuilder()
     .ConfigureServices((_, services) =>

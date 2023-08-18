@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
-using Scraper.Contracts;
+using ProductMonitoringService.Contracts;
 
-namespace Scraper.Extensions;
+namespace ProductMonitoringService.Extensions;
 
 public static class StoreServices
 {
