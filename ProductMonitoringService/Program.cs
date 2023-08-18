@@ -24,5 +24,3 @@ await productService.AddProductFromMessage(message, -1);
 // Discounts
 var discountService = services.GetRequiredService<StoreDiscountService>();
 var discounts = await discountService.GetDiscounts();
-
-Console.WriteLine("test");
