@@ -179,7 +179,7 @@ public sealed class CommandService
         return filePath;
     }
 
-    private IEnumerable<(MethodInfo Method, CommandAttribute Command)> GetCommandMethodsAndAttributes() =>
+    private static IEnumerable<(MethodInfo Method, CommandAttribute Command)> GetCommandMethodsAndAttributes() =>
         typeof(CommandService)
             .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
             .Where(m => Attribute.IsDefined(m, typeof(CommandAttribute)))
