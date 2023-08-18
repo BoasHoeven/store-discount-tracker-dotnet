@@ -1,12 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scraper", "Scraper\Scraper.csproj", "{63420F81-3276-433C-B2CF-5D9D533AC89B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductMonitoringService", "ProductMonitoringService\ProductMonitoringService.csproj", "{63420F81-3276-433C-B2CF-5D9D533AC89B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramBot", "TelegramBot\TelegramBot.csproj", "{E54CC758-3C86-4398-89C5-1C5E3CB90CDE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductTelegramAPI", "ProductTelegramAPI\ProductTelegramAPI.csproj", "{E54CC758-3C86-4398-89C5-1C5E3CB90CDE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageScheduler", "MessageScheduler\MessageScheduler.csproj", "{FA9B8D45-967E-42B1-8682-B6BB9BC735C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscountAnnouncementScheduler", "DiscountAnnouncementScheduler\DiscountAnnouncementScheduler.csproj", "{FA9B8D45-967E-42B1-8682-B6BB9BC735C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedServices", "SharedServices\SharedServices.csproj", "{6C3E5882-43AB-482D-A27E-5A15405EA752}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedUtilities", "SharedUtilities\SharedUtilities.csproj", "{6C3E5882-43AB-482D-A27E-5A15405EA752}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7275CC8A-FFF5-491A-B254-C00F96829B05}"
 	ProjectSection(SolutionItems) = preProject
