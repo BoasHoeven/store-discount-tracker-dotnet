@@ -1,11 +1,11 @@
+using ProductTelegramAPI.Abstract;
+using ProductTelegramAPI.Enums;
 using Scraper.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using TelegramBot.Abstract;
-using TelegramBot.Enums;
 
-namespace TelegramBot.Conversations;
+namespace ProductTelegramAPI.Conversations;
 
 public class WaitingForProductUrlStrategy : IConversationStrategy
 {

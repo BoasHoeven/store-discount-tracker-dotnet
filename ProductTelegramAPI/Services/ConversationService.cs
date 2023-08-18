@@ -1,11 +1,11 @@
+using ProductTelegramAPI.Abstract;
+using ProductTelegramAPI.Conversations;
+using ProductTelegramAPI.Enums;
 using Scraper.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using TelegramBot.Abstract;
-using TelegramBot.Conversations;
-using TelegramBot.Enums;
 
-namespace TelegramBot.Services;
+namespace ProductTelegramAPI.Services;
 
 public sealed class ConversationService
 {

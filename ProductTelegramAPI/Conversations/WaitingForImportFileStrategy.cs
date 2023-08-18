@@ -1,12 +1,12 @@
 using System.Text.Json;
+using ProductTelegramAPI.Abstract;
+using ProductTelegramAPI.Enums;
 using Scraper.ConcreteClasses;
 using Scraper.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using TelegramBot.Abstract;
-using TelegramBot.Enums;
 
-namespace TelegramBot.Conversations;
+namespace ProductTelegramAPI.Conversations;
 
 public class WaitingForImportFileStrategy : IConversationStrategy
 {

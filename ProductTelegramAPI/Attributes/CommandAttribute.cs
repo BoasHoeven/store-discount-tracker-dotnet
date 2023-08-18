@@ -1,4 +1,4 @@
-namespace TelegramBot.Attributes;
+namespace ProductTelegramAPI.Attributes;
 
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
 internal sealed class CommandAttribute : Attribute

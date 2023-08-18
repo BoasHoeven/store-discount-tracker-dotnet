@@ -1,17 +1,17 @@
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
+using ProductTelegramAPI.Attributes;
+using ProductTelegramAPI.Enums;
+using Scraper.Contracts;
 using Scraper.Services;
+using SharedServices.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using System.Text.Json;
-using Scraper.Contracts;
-using SharedServices.Extensions;
 using Telegram.Bot.Types.ReplyMarkups;
-using TelegramBot.Attributes;
-using TelegramBot.Enums;
 
-namespace TelegramBot.Services;
+namespace ProductTelegramAPI.Services;
 
 public sealed class CommandService
 {

@@ -1,4 +1,4 @@
-namespace TelegramBot.Enums;
+namespace ProductTelegramAPI.Enums;
 
 public enum ConversationState
 {

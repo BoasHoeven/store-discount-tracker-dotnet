@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ProductTelegramAPI.Services;
+using ProductTelegramAPI.Services.Backbone;
 using Scraper.Extensions;
 using SharedServices;
-using TelegramBot.Services;
-using TelegramBot.Services.Backbone;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
