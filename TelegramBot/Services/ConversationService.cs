@@ -1,3 +1,5 @@
+using System.Text.Json;
+using Scraper.ConcreteClasses;
 using Scraper.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -25,11 +27,6 @@ public sealed class ConversationService
 
     public async Task HandleConversationStateAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
-        if (botClient == null)
-        {
-            throw new ArgumentNullException(nameof(botClient));
-        }
-
         if (!chatStates.TryGetValue(message.Chat.Id, out var state))
         {
             chatStates[message.Chat.Id] = ConversationState.Normal;
@@ -51,6 +48,9 @@ public sealed class ConversationService
                 break;
 
             case ConversationState.WaitingForRemoveProductName:
+                // Reset conversation state
+                chatStates[message.Chat.Id] = ConversationState.Normal;
+
                 var productMatches = productService.GetProductsByName(message.Text!).Take(2).ToList();
 
                 if (!productMatches.Any())
@@ -77,9 +77,59 @@ public sealed class ConversationService
                     replyMarkup: inlineKeyboard,
                     cancellationToken: cancellationToken);
 
+                break;
+            case ConversationState.WaitingForImportFile:
+            {
+                if (message.Document == null)
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: message.Chat.Id,
+                        text: "Please send me the file containing the products.",
+                        cancellationToken: cancellationToken);
+                    return;
+                }
+
+                // Download the file sent by the user
+                var file = await botClient.GetFileAsync(message.Document.FileId, cancellationToken: cancellationToken);
+                using var stream = new MemoryStream();
+                await botClient.DownloadFileAsync(file.FilePath!, stream, cancellationToken);
+
+                // Move the stream position to the beginning
+                stream.Seek(0, SeekOrigin.Begin);
+
+                try
+                {
+                    // Deserialize the content of the file into product objects
+                    var jsonString = await new StreamReader(stream).ReadToEndAsync(cancellationToken);
+                    var products = JsonSerializer.Deserialize<IEnumerable<Product>>(jsonString);
+
+                    var successfullyImported = await productService.ImportProducts(products!);
+
+                    if (!successfullyImported)
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id,
+                            text: "Something went wrong importing the products.",
+                            cancellationToken: cancellationToken);
+                        return;
+                    }
+                    
+                    await botClient.SendTextMessageAsync(
+                        chatId: message.Chat.Id,
+                        text: "Products have been imported successfully.",
+                        cancellationToken: cancellationToken);
+                }
+                catch (JsonException)
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: message.Chat.Id,
+                        text: "The file format is incorrect. Please send a valid products JSON file.",
+                        cancellationToken: cancellationToken);
+                }
+
                 chatStates[message.Chat.Id] = ConversationState.Normal;
                 break;
-
+            }
             case ConversationState.Normal:
             default:
                 break;

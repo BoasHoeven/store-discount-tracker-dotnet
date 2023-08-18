@@ -1,7 +1,7 @@
 using Telegram.Bot;
 using TelegramBot.Abstract;
 
-namespace TelegramBot.Services;
+namespace TelegramBot.Services.Backbone;
 
 public sealed class ReceiverService : ReceiverServiceBase<UpdateHandler>
 {

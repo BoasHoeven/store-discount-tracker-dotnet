@@ -4,12 +4,12 @@ namespace Scraper.ConcreteClasses;
 
 public sealed class ProductSerializer
 {
-    public List<Product> DeserializeProducts(string jsonString)
+    public static List<Product> DeserializeProducts(string jsonString)
     {
         return JsonSerializer.Deserialize<List<Product>>(jsonString) ?? new List<Product>();
     }
 
-    public string SerializeProducts(List<Product> products)
+    public static string SerializeProducts(IEnumerable<Product> products)
     {
         return JsonSerializer.Serialize(products);
     }

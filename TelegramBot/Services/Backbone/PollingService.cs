@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using TelegramBot.Abstract;
 
-namespace TelegramBot.Services;
+namespace TelegramBot.Services.Backbone;
 
 public sealed class PollingService : PollingServiceBase<ReceiverService>
 {

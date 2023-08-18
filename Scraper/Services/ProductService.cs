@@ -1,3 +1,4 @@
+using Scraper.ConcreteClasses;
 using Scraper.Contracts;
 
 namespace Scraper.Services;
@@ -43,23 +44,28 @@ public sealed class ProductService
         if (product is null)
             return $"Could not scrape a product with id: {id} from store: {store.StoreName}";
     
-        await productStorage.Store(product);
+        await productStorage.Add(product);
         return $"Product {product} has been added";
     }
 
     public IEnumerable<IProduct> GetAllProducts()
     {
-        return productStorage.GetAllProducts();
+        return productStorage.GetAll();
     }
 
     public IEnumerable<IProduct> GetProductsByName(string message)
     {
-        return productStorage.GetProductsByName(message);
+        return productStorage.GetByName(message);
     }
 
     public Task<IProduct?> RemoveProduct(string productId, string storeName)
     {
-        return productStorage.RemoveProduct(productId, storeName);
+        return productStorage.Remove(productId, storeName);
+    }
+
+    public Task<bool> ImportProducts(IEnumerable<Product> products)
+    {
+        return productStorage.ImportProducts(products);
     }
 
     public string GetStoreShortNameFromProduct(IProduct product)

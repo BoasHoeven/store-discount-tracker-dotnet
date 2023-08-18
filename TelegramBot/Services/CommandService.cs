@@ -36,6 +36,7 @@ public sealed class CommandService
             "/add"    => Add(botClient, message, cancellationToken),
             "/remove" => Remove(botClient, message, cancellationToken),
             "/export" => ExportProducts(botClient, message, cancellationToken),
+            "/import" => InitiateImport(botClient, message, cancellationToken),
             _         => Usage(botClient, message, cancellationToken)
         };
 
@@ -102,6 +103,17 @@ public sealed class CommandService
         {
             System.IO.File.Delete(filePath);
         }
+    }
+
+    private async Task<Message> InitiateImport(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    {
+        // Set the chat state as waiting for the import file
+        conversationService.SetState(message.Chat.Id, ConversationState.WaitingForImportFile);
+
+        return await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id,
+            text: "Send me the file containing the products you want to import.",
+            cancellationToken: cancellationToken);
     }
 
     private static async Task<Message> Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)

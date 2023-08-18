@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Scraper.Extensions;
 using SharedServices;
 using TelegramBot.Services;
+using TelegramBot.Services.Backbone;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>

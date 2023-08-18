@@ -13,7 +13,7 @@ public static class ScraperServices
             .AddAlbertHeijnStoreServices()
             .AddTransient<StoreMatcherService>()
             .AddTransient<StoreDiscountService>()
-            .AddTransient<IProductStorage, JsonProductStorageService>()
+            .AddSingleton<IProductStorage, JsonProductStorageService>()
             .AddScoped<ProductSerializer>()
             .AddTransient<ProductService>()
             .AddTransient<UrlExtractorService>()

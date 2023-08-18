@@ -1,10 +1,13 @@
+using Scraper.ConcreteClasses;
+
 namespace Scraper.Contracts;
 
 public interface IProductStorage
 {
-    Task<bool> Store(IProduct product);
+    Task<bool> Add(IProduct product);
     Task<IProduct?> Exists(string productId, string storeName);
-    IEnumerable<IProduct> GetAllProducts();
-    IEnumerable<IProduct> GetProductsByName(string message);
-    Task<IProduct?> RemoveProduct(string productId, string storeName);
+    IEnumerable<IProduct> GetAll();
+    IEnumerable<IProduct> GetByName(string message);
+    Task<IProduct?> Remove(string productId, string storeName);
+    Task<bool> ImportProducts(IEnumerable<Product> products);
 }

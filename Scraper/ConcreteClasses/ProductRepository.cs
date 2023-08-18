@@ -11,27 +11,27 @@ public sealed class ProductRepository
         this.products = products;
     }
 
-    public Product? FindProductByIdAndStore(string id, string storeName)
+    public Product? FindByIdAndStore(string id, string storeName)
     {
         return products.FirstOrDefault(p => p.Id == id && p.StoreName == storeName);
     }
 
-    public void AddProduct(Product product)
+    public void Add(Product product)
     {
         products.Add(product);
     }
 
-    public List<Product> GetProducts()
+    public IEnumerable<Product> GetAll()
     {
         return products;
     }
 
-    public IEnumerable<IProduct> GetProductsByName(string name)
+    public IEnumerable<IProduct> GetByName(string name)
     {
         return products.Where(p => p.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    public void RemoveProduct(Product product)
+    public void Remove(Product product)
     {
         products.Remove(product);
     }
