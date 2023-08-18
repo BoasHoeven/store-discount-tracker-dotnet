@@ -7,7 +7,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace ProductTelegramAPI.Conversations;
 
-public class WaitingForProductUrlStrategy : IConversationStrategy
+public sealed class WaitingForProductUrlStrategy : IConversationStrategy
 {
     private readonly ProductService productService;
 

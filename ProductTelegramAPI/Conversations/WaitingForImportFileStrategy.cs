@@ -8,7 +8,7 @@ using Telegram.Bot.Types;
 
 namespace ProductTelegramAPI.Conversations;
 
-public class WaitingForImportFileStrategy : IConversationStrategy
+public sealed class WaitingForImportFileStrategy : IConversationStrategy
 {
     private readonly ProductService productService;
 

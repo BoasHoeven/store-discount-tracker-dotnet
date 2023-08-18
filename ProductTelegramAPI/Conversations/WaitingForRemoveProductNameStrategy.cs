@@ -8,7 +8,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ProductTelegramAPI.Conversations;
 
-public class WaitingForRemoveProductNameStrategy : IConversationStrategy
+public sealed class WaitingForRemoveProductNameStrategy : IConversationStrategy
 {
     private readonly ProductService productService;
 
