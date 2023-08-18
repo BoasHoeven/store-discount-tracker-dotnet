@@ -52,7 +52,7 @@ public sealed class CommandService
         }
         else
         {
-            await Usage(botClient, message, cancellationToken);
+            await Commands(botClient, message, cancellationToken);
         }
     }
 
@@ -134,11 +134,11 @@ public sealed class CommandService
             cancellationToken: cancellationToken);
     }
 
-    private async Task Usage(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    private static async Task Commands(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         var commands = GetCommandMethodsAndAttributes().Select(tuple => tuple.Command).ToList();
 
-        var usageText = new StringBuilder("Usage:\n");
+        var usageText = new StringBuilder("Commands:\n");
 
         foreach (var command in commands)
         {
