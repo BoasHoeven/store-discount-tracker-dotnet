@@ -7,13 +7,10 @@ namespace Scraper.Services;
 public sealed class JsonProductStorageService : IProductStorage
 {
     private readonly ProductRepository productRepository;
-    private readonly ProductSerializer productSerializer;
     private readonly string filePath;
 
-    public JsonProductStorageService(ProductSerializer productSerializer)
+    public JsonProductStorageService()
     {
-        this.productSerializer = productSerializer;
-
         var productsJsonPath = Environment.GetEnvironmentVariable("PRODUCTS_JSON_PATH");
 
         if(productsJsonPath == null)
@@ -55,7 +52,7 @@ public sealed class JsonProductStorageService : IProductStorage
     {
         var existingProduct = productRepository.FindByIdAndStore(productId, storeName);
 
-        return Task.FromResult<IProduct>(existingProduct);
+        return Task.FromResult<IProduct?>(existingProduct);
     }
 
     public IEnumerable<IProduct> GetAll() => productRepository.GetAll();
@@ -83,6 +80,9 @@ public sealed class JsonProductStorageService : IProductStorage
     {
         var jsonString = ProductSerializer.SerializeProducts(products);
         await File.WriteAllTextAsync(filePath, jsonString);
+
+        productRepository.SetProducts(products);
+
         return true;
     }
 }

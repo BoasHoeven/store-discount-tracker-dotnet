@@ -122,7 +122,8 @@ public sealed class CommandService
                              "/list - display products\n" +
                              "/add - add a product from a URL\n" +
                              "/remove - remove a product by its name or a part of its name\n" +
-                             "/export - exports all products to a file";
+                             "/export - exports all products to a file\n" +
+                             "/import - import products from a file";
 
         return await botClient.SendTextMessageAsync(
             chatId: message.Chat.Id,
@@ -130,7 +131,7 @@ public sealed class CommandService
             replyMarkup: new ReplyKeyboardRemove(),
             cancellationToken: cancellationToken);
     }
-        
+
     private static string FormatProductsByStore(IEnumerable<IProduct> products)
     {
         var productGroups = products.GroupBy(p => p.StoreName);
@@ -144,11 +145,11 @@ public sealed class CommandService
 
         return string.Join("\n\n", storeProductStrings);
     }
-        
+
     private static string GenerateJsonFile(IEnumerable<IProduct> products)
     {
         var jsonString = JsonSerializer.Serialize(products, new JsonSerializerOptions { WriteIndented = true });
-    
+
         var filePath = Path.Combine(Path.GetTempPath(), $"Products_{DateTime.UtcNow:yyyyMMdd_HHmmss}.json");
         System.IO.File.WriteAllText(filePath, jsonString);
 

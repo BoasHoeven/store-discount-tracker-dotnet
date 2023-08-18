@@ -35,4 +35,10 @@ public sealed class ProductRepository
     {
         products.Remove(product);
     }
+
+    public void SetProducts(IEnumerable<Product> newProducts)
+    {
+        products.Clear();
+        products.AddRange(newProducts);
+    }
 }
