@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Text;
-using MessageScheduler.Configuration;
+using DiscountAnnouncementScheduler.Configuration;
 using Microsoft.Extensions.Options;
 using Quartz;
 using Scraper.ConcreteClasses;
@@ -9,7 +9,7 @@ using SharedUtilities.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
-namespace MessageScheduler.Abstract;
+namespace DiscountAnnouncementScheduler.Abstract;
 
 public abstract class MessageJob : IJob
 {

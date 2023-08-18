@@ -1,11 +1,11 @@
-using MessageScheduler.Abstract;
-using MessageScheduler.Configuration;
+using DiscountAnnouncementScheduler.Abstract;
+using DiscountAnnouncementScheduler.Configuration;
 using Microsoft.Extensions.Options;
 using Quartz;
 using Scraper.Services;
 using Telegram.Bot;
 
-namespace MessageScheduler.Jobs;
+namespace DiscountAnnouncementScheduler.Jobs;
 
 public class NextWeekDiscountJob : MessageJob
 {

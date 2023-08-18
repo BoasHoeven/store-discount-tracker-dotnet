@@ -1,4 +1,4 @@
-namespace MessageScheduler.Configuration;
+namespace DiscountAnnouncementScheduler.Configuration;
 
 public sealed class TelegramChannelConfiguration
 {

@@ -1,6 +1,6 @@
-﻿using MessageScheduler.Configuration;
-using MessageScheduler.Factory;
-using MessageScheduler.Jobs;
+﻿using DiscountAnnouncementScheduler.Configuration;
+using DiscountAnnouncementScheduler.Factory;
+using DiscountAnnouncementScheduler.Jobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

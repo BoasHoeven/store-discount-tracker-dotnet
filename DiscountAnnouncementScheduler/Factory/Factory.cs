@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using Quartz.Spi;
 
-namespace MessageScheduler.Factory;
+namespace DiscountAnnouncementScheduler.Factory;
 
 public class JobFactory : IJobFactory
 {
