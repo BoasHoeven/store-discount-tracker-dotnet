@@ -60,7 +60,6 @@ public sealed class CommandService
     }
 
     [Command("/add", "add a product from a URL")]
-
     private async Task<Message> Add(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         // Mark the chat state as waiting for product URL
