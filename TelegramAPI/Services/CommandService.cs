@@ -3,15 +3,15 @@ using System.Text;
 using System.Text.Json;
 using ProductMonitoringService.Contracts;
 using ProductMonitoringService.Services;
-using ProductTelegramAPI.Attributes;
-using ProductTelegramAPI.Enums;
 using SharedUtilities.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using TelegramAPI.Attributes;
+using TelegramAPI.Enums;
 
-namespace ProductTelegramAPI.Services;
+namespace TelegramAPI.Services;
 
 public sealed class CommandService
 {

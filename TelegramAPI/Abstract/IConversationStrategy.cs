@@ -1,8 +1,8 @@
-using ProductTelegramAPI.Enums;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using TelegramAPI.Enums;
 
-namespace ProductTelegramAPI.Abstract;
+namespace TelegramAPI.Abstract;
 
 public interface IConversationStrategy
 {

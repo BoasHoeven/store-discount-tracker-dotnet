@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductMonitoringService", "ProductMonitoringService\ProductMonitoringService.csproj", "{63420F81-3276-433C-B2CF-5D9D533AC89B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductTelegramAPI", "ProductTelegramAPI\ProductTelegramAPI.csproj", "{E54CC758-3C86-4398-89C5-1C5E3CB90CDE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramAPI", "TelegramAPI\TelegramAPI.csproj", "{E54CC758-3C86-4398-89C5-1C5E3CB90CDE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscountAnnouncementScheduler", "DiscountAnnouncementScheduler\DiscountAnnouncementScheduler.csproj", "{FA9B8D45-967E-42B1-8682-B6BB9BC735C4}"
 EndProject

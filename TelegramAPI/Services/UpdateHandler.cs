@@ -4,7 +4,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 
-namespace ProductTelegramAPI.Services;
+namespace TelegramAPI.Services;
 
 public sealed class UpdateHandler : IUpdateHandler
 {

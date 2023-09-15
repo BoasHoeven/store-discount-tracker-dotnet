@@ -1,4 +1,4 @@
-namespace ProductTelegramAPI.Abstract;
+namespace TelegramAPI.Abstract;
 
 /// <summary>
 /// A marker interface for Update Receiver service

@@ -3,7 +3,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace ProductTelegramAPI.Services;
+namespace TelegramAPI.Services;
 
 public sealed class CallbackService
 {

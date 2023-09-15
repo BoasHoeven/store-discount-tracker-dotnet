@@ -1,7 +1,7 @@
-using ProductTelegramAPI.Abstract;
 using Telegram.Bot;
+using TelegramAPI.Abstract;
 
-namespace ProductTelegramAPI.Services.Backbone;
+namespace TelegramAPI.Services.Backbone;
 
 public sealed class ReceiverService : ReceiverServiceBase<UpdateHandler>
 {
