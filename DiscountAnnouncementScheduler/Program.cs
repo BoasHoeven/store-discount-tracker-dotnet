@@ -65,7 +65,8 @@ var currentWeekJob = JobBuilder.Create<CurrentWeekDiscountJob>()
 
 var currentWeekTrigger = TriggerBuilder.Create()
     .WithIdentity("CurrentWeekDiscountTrigger", "Group1")
-    .WithCronSchedule("0 0 8 ? * MON *") // run at 8 AM every Monday
+    .WithCronSchedule("0 0 16 ? * MON *") // run at 8 AM every Monday
+    .StartNow()
     .ForJob(currentWeekJob)
     .Build();
 
