@@ -34,9 +34,8 @@ public sealed class AlbertHeijnScraper : IStoreScraper
 
     private async Task EnsureCookiesAsync()
     {
-        if (cache.TryGetValue("CookieData", out string cachedCookie))
+        if (cache.TryGetValue("CookieData", out string? cachedCookie))
         {
-            cookieBuilder.Clear();
             cookieBuilder.Append(cachedCookie);
             return;
         }
@@ -53,8 +52,8 @@ public sealed class AlbertHeijnScraper : IStoreScraper
             // }
             cookieBuilder.Append(cookie);
 
-            cache.Set("CookieData", cookieBuilder, TimeSpan.FromMinutes(5));
-            logger.LogInformation("Cookies initialized: {Cookies}", cookieBuilder);
+            cache.Set("CookieData", cookieBuilder.ToString(), TimeSpan.FromMinutes(5));
+            logger.LogInformation("Cookies initialized: {Cookies}", cookieBuilder.ToString());
         }
         else
         {

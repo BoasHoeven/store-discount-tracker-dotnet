@@ -24,7 +24,7 @@ public sealed class StoreDiscountService
     {
         var products = productService.GetAllProducts();
         var productsByStore = products.GroupBy(x => x.StoreName);
-            
+
         var discountedProducts = new List<ProductDiscount>();
         foreach (var group in productsByStore)
         {
@@ -39,7 +39,7 @@ public sealed class StoreDiscountService
                     discountedProducts.Add(result);
                 }
 
-                await Task.Delay(random.Next(500, 5000));
+                await Task.Delay(random.Next(500, 1200));
             }
         }
 
@@ -53,12 +53,12 @@ public sealed class StoreDiscountService
 
         // Get the current week of the year
         var currentWeek = DateTime.UtcNow.GetWeekNumber();
-    
+
         // Filter the discounts based on the weekOffset
         var filteredDiscounts = allDiscounts.Where(discount => discount.StartDate.GetWeekNumber() == (currentWeek + weekOffset) ||
                                                                discount.EndDate.GetWeekNumber() == (currentWeek + weekOffset));
 
         return filteredDiscounts;
     }
-    
+
 }
