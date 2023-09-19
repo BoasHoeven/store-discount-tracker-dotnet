@@ -26,7 +26,7 @@ public sealed class DirkScraper : IStoreScraper
     private const string ApiKey = "6d3a42a3-6d93-4f98-838d-bcc0ab2307fd";
     private const string ProductNameXPath = "//h1[@class='product-details__info__title']";
     private const string ProductUnitSizeXPath = "//span[@class='product-details__info__subtitle']";
-        
+
     private sealed class ProductData
     {
         public int ProductID { get; set; }
@@ -118,29 +118,47 @@ public sealed class DirkScraper : IStoreScraper
 
         return product;
     }
-        
-    public async Task<ProductDiscount?> IsOnDiscount(IProduct product)
+
+    public async Task<ProductDiscountResponse> IsOnDiscount(IProduct product)
     {
         if (product.StoreName != "Dirk")
         {
             throw new ArgumentException($"Unsupported store: {product.StoreName}");
         }
-        
+
         if (cache.TryGetValue($"dirk_{product.Id}", out ProductDiscount? cachedDiscount))
         {
             logger.LogInformation("Cache hit for {Product}", product);
-            return cachedDiscount;
+            return new ProductDiscountResponse(new ProductResponse(product){ IsCached = true})
+            {
+                ProductDiscount = cachedDiscount
+            };
         }
 
         var response = await Client.GetAsync($"https://api.dirk.nl/v1/assortmentcache/number/66/{product.ProductNumber}?api_key={ApiKey}");
 
-        if (!response.IsSuccessStatusCode) return null;
+        if (!response.IsSuccessStatusCode)
+        {
+            var productResponse = new ProductResponse(product)
+            {
+                StatusCode = response.StatusCode
+            };
+            return new ProductDiscountResponse(productResponse);
+        }
+
         var content = await response.Content.ReadAsStringAsync();
 
         var jsonData = JsonDocument.Parse(content);
         var productOffers = jsonData.RootElement.GetProperty("ProductOffers");
 
-        if (productOffers.ValueKind == JsonValueKind.Undefined || productOffers.GetArrayLength() == 0) return null;
+        if (productOffers.ValueKind == JsonValueKind.Undefined || productOffers.GetArrayLength() == 0)
+        {
+            var productResponse = new ProductResponse(product)
+            {
+                StatusCode = response.StatusCode
+            };
+            return new ProductDiscountResponse(productResponse);
+        }
 
         var offer = productOffers[0];
         var startDateString = offer.GetProperty("Offer").GetProperty("StartDate").GetString();
@@ -169,6 +187,9 @@ public sealed class DirkScraper : IStoreScraper
             logger.LogWarning("Attempted to cache expired discount for {Product}. Discount end date: {EndDate}", product, endDate);
         }
 
-        return productDiscount;
+        return new ProductDiscountResponse(new ProductResponse(product){ StatusCode = response.StatusCode })
+        {
+            ProductDiscount = productDiscount
+        };
     }
 }

@@ -27,15 +27,11 @@ public sealed class AlbertHeijnScraper : IStoreScraper
         client = clientFactory.CreateClient("AlbertHeijnClient");
     }
 
-    private static string CookieStripper(string cookie)
-    {
-        return $"{cookie.Split(';').First()};";
-    }
-
     private async Task EnsureCookiesAsync()
     {
         if (cache.TryGetValue("CookieData", out string? cachedCookie))
         {
+            cookieBuilder.Clear();
             cookieBuilder.Append(cachedCookie);
             return;
         }
@@ -43,16 +39,11 @@ public sealed class AlbertHeijnScraper : IStoreScraper
         var response = await client.GetAsync("https://www.ah.nl/");
         if (response.Headers.TryGetValues("Set-Cookie", out var cookies))
         {
-            var cookie = cookies.First(x => x.Contains("Ahonlnl-Prd-01"));
             cookieBuilder.Clear();
-            // for (var i = 7; i <= 10; i++)
-            // {
-            //     var cookie = CookieStripper(cookies.ElementAt(i));
-            //     cookieBuilder.Append(cookie);
-            // }
+            var cookie = cookies.First(x => x.Contains("Ahonlnl-Prd-01"));
             cookieBuilder.Append(cookie);
 
-            cache.Set("CookieData", cookieBuilder.ToString(), TimeSpan.FromMinutes(5));
+            cache.Set("CookieData", cookieBuilder.ToString(), TimeSpan.FromMinutes(30));
             logger.LogInformation("Cookies initialized: {Cookies}", cookieBuilder.ToString());
         }
         else
@@ -63,9 +54,12 @@ public sealed class AlbertHeijnScraper : IStoreScraper
 
     public async Task<IProduct?> GetProductFromId(string id, long userId)
     {
-        var productDetails = await GetProductDetailsFromId(id);
+        var productResponse = await GetProductResponse(new Product(id, "", "", ""));
 
-        if (productDetails == null) return null;
+        if (productResponse.ProductDetails == null)
+            return null;
+
+        var productDetails = productResponse.ProductDetails;
 
         IProduct product = new Product(id, productDetails.title, productDetails.price.unitSize,"Albert Heijn")
         {
@@ -77,7 +71,7 @@ public sealed class AlbertHeijnScraper : IStoreScraper
         return product;
     }
 
-    public async Task<ProductDiscount?> IsOnDiscount(IProduct product)
+    public async Task<ProductDiscountResponse> IsOnDiscount(IProduct product)
     {
         if (product.StoreName != "Albert Heijn")
         {
@@ -87,12 +81,19 @@ public sealed class AlbertHeijnScraper : IStoreScraper
         if (cache.TryGetValue($"Discount_{product.Id}", out ProductDiscount? discountCache))
         {
             logger.LogInformation("Cache hit for {Product}", product);
-            return discountCache;
+            return new ProductDiscountResponse(new ProductResponse(product) { IsCached = true })
+            {
+                ProductDiscount = discountCache
+            };
         }
 
-        var productDetails = await GetProductDetailsFromId(product.Id);
-        if (productDetails?.discount is null) return null;
+        var productResponse = await GetProductResponse(product);
+        if (productResponse.ProductDetails?.discount is null)
+        {
+            return new ProductDiscountResponse(productResponse);
+        }
 
+        var productDetails = productResponse.ProductDetails;
         var discount = productDetails.discount;
         var tieredOffer = discount.tieredOffer?.Length > 0 ? string.Join(" & ", discount.tieredOffer): "";
         var discountMessage = tieredOffer != string.Empty ? tieredOffer : productDetails.shield?.text;
@@ -109,23 +110,46 @@ public sealed class AlbertHeijnScraper : IStoreScraper
 
         cache.Set($"Discount_{product.Id}", productDiscount, discount.endDate.ToUniversalTime());
 
-        return productDiscount;
+        return new ProductDiscountResponse(productResponse)
+        {
+            ProductDiscount = productDiscount
+        };
     }
 
-    private async Task<ProductDetails?> GetProductDetailsFromId(string id)
+    private async Task<ProductResponse> GetProductResponse(IProduct product)
     {
         await EnsureCookiesAsync();
         client.DefaultRequestHeaders.Add("Cookie", cookieBuilder.ToString());
 
-        var response = await client.GetAsync($"zoeken/api/products/product?webshopId={id}");
+        var response = await client.GetAsync($"zoeken/api/products/product?webshopId={product.Id}");
 
-        if (!response.IsSuccessStatusCode) return null;
+        if (response.Headers.TryGetValues("Set-Cookie", out var cookies))
+        {
+            if (cookies.Any())
+            {
+                cache.Set("CookieData", cookies.Last(), TimeSpan.FromMinutes(30));
+            }
+            else
+            {
+                logger.LogError("There were no cookies to set!");
+            }
+        }
+
+        if (!response.IsSuccessStatusCode)
+            return new ProductResponse(product)
+            {
+                StatusCode = response.StatusCode
+            };
 
         var jsonResponse = await response.Content.ReadAsStringAsync();
 
         var root = JsonSerializer.Deserialize<RootObject>(jsonResponse);
         var productDetails = root?.card.products.FirstOrDefault();
 
-        return productDetails;
+        return new ProductResponse(product)
+        {
+            StatusCode = response.StatusCode,
+            ProductDetails = productDetails
+        };
     }
 }

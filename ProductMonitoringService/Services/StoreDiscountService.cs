@@ -1,6 +1,5 @@
 using ProductMonitoringService.ConcreteClasses;
 using ProductMonitoringService.Contracts;
-using SharedUtilities.Extensions;
 
 namespace ProductMonitoringService.Services;
 
@@ -8,7 +7,6 @@ public sealed class StoreDiscountService
 {
     private readonly IEnumerable<IStore> stores;
     private readonly ProductService productService;
-    private readonly Random random;
 
     public StoreDiscountService(IEnumerable<IStore> stores, ProductService productService)
     {
@@ -17,48 +15,36 @@ public sealed class StoreDiscountService
 
         this.stores = stores;
         this.productService = productService;
-        random = new Random();
     }
 
-    public async Task<IEnumerable<ProductDiscount>> GetDiscounts()
+    public async Task<IEnumerable<ProductDiscountResponse>> GetDiscounts()
     {
         var products = productService.GetAllProducts();
         var productsByStore = products.GroupBy(x => x.StoreName);
 
-        var discountedProducts = new List<ProductDiscount>();
+        var discountResponses = new List<ProductDiscountResponse>();
         foreach (var group in productsByStore)
         {
             var store = stores.SingleOrDefault(x => x.StoreName == group.Key);
-            if (store is null) continue;
+            if (store is null)
+                continue;
 
             foreach (var product in group)
             {
-                var result = await store.Scraper.IsOnDiscount(product);
-                if (result is not null)
+                try
                 {
-                    discountedProducts.Add(result);
+                    var productDiscountResponse = await store.Scraper.IsOnDiscount(product);
+                    discountResponses.Add(productDiscountResponse);
+                }
+                catch (Exception e)
+                {
+                    // ignored
                 }
 
-                await Task.Delay(random.Next(500, 1200));
+                await Task.Delay(3500);
             }
         }
 
-        return discountedProducts;
+        return discountResponses;
     }
-
-    public async Task<IEnumerable<ProductDiscount>> GetDiscountsForWeek(int weekOffset)
-    {
-        // Get all discounts
-        var allDiscounts = await GetDiscounts();
-
-        // Get the current week of the year
-        var currentWeek = DateTime.UtcNow.GetWeekNumber();
-
-        // Filter the discounts based on the weekOffset
-        var filteredDiscounts = allDiscounts.Where(discount => discount.StartDate.GetWeekNumber() == (currentWeek + weekOffset) ||
-                                                               discount.EndDate.GetWeekNumber() == (currentWeek + weekOffset));
-
-        return filteredDiscounts;
-    }
-
 }

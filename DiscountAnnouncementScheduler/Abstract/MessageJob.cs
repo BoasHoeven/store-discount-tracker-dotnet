@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net;
 using System.Text;
 using DiscountAnnouncementScheduler.Configuration;
 using Microsoft.Extensions.Options;
@@ -13,7 +14,7 @@ namespace DiscountAnnouncementScheduler.Abstract;
 
 public abstract class MessageJob : IJob
 {
-    protected readonly StoreDiscountService StoreDiscountService;
+    private readonly StoreDiscountService storeDiscountService;
 
     private readonly ITelegramBotClient botClient;
     private readonly TelegramChannelConfiguration telegramChannelConfiguration;
@@ -27,7 +28,7 @@ public abstract class MessageJob : IJob
 
         telegramChannelConfiguration = channelConfiguration.Value;
         this.botClient = botClient;
-        StoreDiscountService = storeDiscountService;
+        this.storeDiscountService = storeDiscountService;
     }
 
     public abstract Task Execute(IJobExecutionContext context);
@@ -118,5 +119,67 @@ public abstract class MessageJob : IJob
     private static int GetWeekDiff(DateTime dateTimeA, DateTime dateTimeB)
     {
         return dateTimeA.GetWeekNumber() - dateTimeB.GetWeekNumber();
+    }
+
+    private async Task NotifyOfFailedRequests(IEnumerable<ProductDiscountResponse> productDiscountResponses)
+    {
+        if (!telegramChannelConfiguration.NotificationChannelId.HasValue)
+            return;
+
+        var failedRequests = productDiscountResponses.Where(x => x.ProductResponse.StatusCode != HttpStatusCode.OK);
+
+        if (failedRequests.Any())
+        {
+            var totalRequests = productDiscountResponses.Count();
+            var totalFailedRequests = failedRequests.Count();
+
+            var groupedByStore = failedRequests.GroupBy(x => x.ProductResponse.Product.StoreName);
+            var sb = new StringBuilder($"Total Requests: {totalRequests}, Total Failed: {totalFailedRequests}\n\n");
+
+            foreach (var storeGroup in groupedByStore)
+            {
+                sb.AppendLine($"Store: {storeGroup.Key}");
+
+                var groupedByStatusCode = storeGroup.GroupBy(x => x.ProductResponse.StatusCode);
+                foreach (var statusCodeGroup in groupedByStatusCode)
+                {
+                    sb.AppendLine($"- Status Code: {statusCodeGroup.Key}, Count: {statusCodeGroup.Count()}");
+
+                    foreach (var productDiscountResponse in statusCodeGroup.Take(5))
+                    {
+                        var product = productDiscountResponse.ProductResponse.Product;
+                        sb.AppendLine($"  - Product ID: {product.Id}, Name: {product.Name}");
+                    }
+                    if (statusCodeGroup.Count() > 5)
+                    {
+                        sb.AppendLine($"  ...and {statusCodeGroup.Count() - 5} more.");
+                    }
+                }
+                sb.AppendLine();
+            }
+
+            await botClient.SendTextMessageAsync(telegramChannelConfiguration.NotificationChannelId, sb.ToString());
+        }
+    }
+
+    protected async Task<IEnumerable<ProductDiscount>> GetDiscountsForWeek(int weekOffset)
+    {
+        // Get all discounts
+        var productDiscountResponses = await storeDiscountService.GetDiscounts();
+
+        await NotifyOfFailedRequests(productDiscountResponses);
+
+        var discounts = productDiscountResponses
+            .Where(x => x.ProductDiscount is not null)
+            .Select(x => x.ProductDiscount);
+
+        // Get the current week of the year
+        var currentWeek = DateTime.UtcNow.GetWeekNumber();
+
+        // Filter the discounts based on the weekOffset
+        var filteredDiscounts = discounts.Where(discount => discount!.StartDate.GetWeekNumber() == currentWeek + weekOffset ||
+                                                            discount.EndDate.GetWeekNumber() == currentWeek + weekOffset);
+
+        return filteredDiscounts!;
     }
 }

@@ -11,3 +11,14 @@ public sealed class ProductDiscount
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
 }
+
+public sealed class ProductDiscountResponse
+{
+    public ProductResponse ProductResponse { get; init; }
+    public ProductDiscount? ProductDiscount { get; init; }
+
+    public ProductDiscountResponse(ProductResponse productResponse)
+    {
+        ProductResponse = productResponse;
+    }
+}

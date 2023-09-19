@@ -12,6 +12,7 @@ public static class AlbertHeijnStoreServices
 
         services.AddHttpClient("AlbertHeijnClient", c =>
             {
+                c.Timeout = TimeSpan.FromSeconds(30);
                 c.BaseAddress = new Uri("https://ah.nl");
 
                 c.DefaultRequestHeaders.Add("Host", "www.ah.nl");
@@ -21,19 +22,11 @@ public static class AlbertHeijnStoreServices
                     "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
                 c.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.5");
                 c.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
-                c.DefaultRequestHeaders.Add("Connection", "keep-alive");
                 c.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
-                c.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "document");
-                c.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "navigate");
-                c.DefaultRequestHeaders.Add("Sec-Fetch-Site", "none");
-                c.DefaultRequestHeaders.Add("Sec-Fetch-User", "?1");
-                c.DefaultRequestHeaders.Add("DNT", "1");
-                c.DefaultRequestHeaders.Add("Sec-GPC", "1");
-                c.DefaultRequestHeaders.Add("TE", "trailers");
             })
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
             {
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
             })
             .AddHttpMessageHandler<AlbertHeijnRateLimitPolicy>();
 

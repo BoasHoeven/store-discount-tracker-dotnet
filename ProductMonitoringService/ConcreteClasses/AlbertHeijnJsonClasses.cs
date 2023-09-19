@@ -1,3 +1,6 @@
+using System.Net;
+using ProductMonitoringService.Contracts;
+
 namespace ProductMonitoringService.ConcreteClasses;
 
 public sealed class RootObject
@@ -16,6 +19,19 @@ public sealed class ProductDetails
     public Price price { get; set; }
     public Discount? discount { get; set; }
     public Shield? shield { get; set; }
+}
+
+public sealed class ProductResponse
+{
+    public bool IsCached { get; init; }
+    public HttpStatusCode StatusCode { get; init; }
+    public ProductDetails? ProductDetails { get; init; }
+    public IProduct Product { get; init; }
+
+    public ProductResponse(IProduct product)
+    {
+        Product = product;
+    }
 }
 
 public sealed class Price
