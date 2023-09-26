@@ -126,7 +126,9 @@ public abstract class MessageJob : IJob
         if (!telegramChannelConfiguration.NotificationChannelId.HasValue)
             return;
 
-        var failedRequests = productDiscountResponses.Where(x => x.ProductResponse.StatusCode != HttpStatusCode.OK);
+        var failedRequests = productDiscountResponses
+            .Where(x => !x.ProductResponse.IsCached)
+            .Where(x => x.ProductResponse.StatusCode != HttpStatusCode.OK);
 
         if (failedRequests.Any())
         {
