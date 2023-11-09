@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using ProductMonitoringService.ConcreteClasses;
 using ProductMonitoringService.Contracts;
 using ProductMonitoringService.Services;
 using SharedUtilities.Extensions;
@@ -16,12 +17,14 @@ namespace TelegramAPI.Services;
 public sealed class CommandService
 {
     private readonly ProductService productService;
+    private readonly StoreDiscountService storeDiscountService;
     private readonly ConversationService conversationService;
     private readonly Lazy<Dictionary<string, Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>>> commandHandlers;
 
-    public CommandService(ProductService productService, ConversationService conversationService)
+    public CommandService(ProductService productService, StoreDiscountService storeDiscountService, ConversationService conversationService)
     {
         this.productService = productService;
+        this.storeDiscountService = storeDiscountService;
         this.conversationService = conversationService;
 
         commandHandlers = new Lazy<Dictionary<string, Func<ITelegramBotClient, Message, CancellationToken, Task<Message>>>>(() => {
@@ -132,6 +135,43 @@ public sealed class CommandService
             chatId: message.Chat.Id,
             text: "Send me the file containing the products you want to import.",
             cancellationToken: cancellationToken);
+    }
+
+    [Command("/bonus", "check which products are in the bonus")]
+    private async Task<Message> Bonus(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    {
+        var productDiscountResponses = await storeDiscountService.GetDiscounts();
+
+        var discounts = productDiscountResponses
+            .Where(x => x.ProductDiscount is not null)
+            .Select(x => x.ProductDiscount);
+
+        var bonusMessages = discounts
+            .Select(FormatDiscountMessage)
+            .ToList();
+
+        var messageText = bonusMessages.Any()
+            ? string.Join("\n", bonusMessages)
+            : "There are no products in the bonus at the moment.";
+
+        return await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id,
+            text: messageText,
+            parseMode: ParseMode.Html,
+            cancellationToken: cancellationToken);
+    }
+
+    private static string FormatDiscountMessage(ProductDiscount? discount)
+    {
+        var productName = discount.Product.Name;
+        var oldPrice = discount.OldPrice?.ToString("C") ?? "N/A";
+        var newPrice = discount.NewPrice.ToString("C");
+        var discountMessage = discount.DiscountMessage;
+
+        productName = System.Net.WebUtility.HtmlEncode(productName);
+        discountMessage = System.Net.WebUtility.HtmlEncode(discountMessage);
+
+        return $"<b>{productName}</b>\nOld Price: {oldPrice}\nNew Price: {newPrice}\nDiscount: {discountMessage}";
     }
 
     private static async Task Commands(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
