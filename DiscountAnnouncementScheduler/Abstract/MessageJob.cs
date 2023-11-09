@@ -126,17 +126,20 @@ public abstract class MessageJob : IJob
         if (!telegramChannelConfiguration.NotificationChannelId.HasValue)
             return;
 
-        var failedRequests = productDiscountResponses
+        var discountResponses = productDiscountResponses as ProductDiscountResponse[] ?? productDiscountResponses.ToArray();
+
+        var failedRequests = discountResponses
             .Where(x => !x.ProductResponse.IsCached)
-            .Where(x => x.ProductResponse.StatusCode != HttpStatusCode.OK);
+            .Where(x => x.ProductResponse.StatusCode != HttpStatusCode.OK || x.ProductResponse.HasFailed)
+            .ToArray();
+
+        var totalFailedRequests = failedRequests.Length;
+        var totalRequests = discountResponses.Length;
+        var sb = new StringBuilder($"Total Requests: {totalRequests}, Total Failed: {totalFailedRequests}\n\n");
 
         if (failedRequests.Any())
         {
-            var totalRequests = productDiscountResponses.Count();
-            var totalFailedRequests = failedRequests.Count();
-
             var groupedByStore = failedRequests.GroupBy(x => x.ProductResponse.Product.StoreName);
-            var sb = new StringBuilder($"Total Requests: {totalRequests}, Total Failed: {totalFailedRequests}\n\n");
 
             foreach (var storeGroup in groupedByStore)
             {

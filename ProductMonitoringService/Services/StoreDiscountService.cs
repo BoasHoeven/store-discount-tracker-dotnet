@@ -1,3 +1,4 @@
+using System.Net;
 using ProductMonitoringService.ConcreteClasses;
 using ProductMonitoringService.Contracts;
 
@@ -38,7 +39,12 @@ public sealed class StoreDiscountService
                 }
                 catch (Exception e)
                 {
-                    // ignored
+                    var productResponse = new ProductResponse(product)
+                    {
+                        HasFailed = true
+                    };
+                    var productDiscountResponse = new ProductDiscountResponse(productResponse);
+                    discountResponses.Add(productDiscountResponse);
                 }
 
                 await Task.Delay(3500);

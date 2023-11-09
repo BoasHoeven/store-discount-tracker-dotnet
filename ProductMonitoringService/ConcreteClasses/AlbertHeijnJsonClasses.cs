@@ -24,6 +24,8 @@ public sealed class ProductDetails
 public sealed class ProductResponse
 {
     public bool IsCached { get; init; }
+    public bool HasFailed { get; init; }
+
     public HttpStatusCode StatusCode { get; init; }
     public ProductDetails? ProductDetails { get; init; }
     public IProduct Product { get; init; }
