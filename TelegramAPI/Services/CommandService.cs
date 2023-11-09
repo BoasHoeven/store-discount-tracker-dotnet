@@ -1,3 +1,4 @@
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -142,6 +143,14 @@ public sealed class CommandService
     {
         var productDiscountResponses = await storeDiscountService.GetDiscounts();
 
+        var sb = NotifyOfFailedRequests(productDiscountResponses);
+
+        await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id,
+            text: sb.ToString(),
+            parseMode: ParseMode.Html,
+            cancellationToken: cancellationToken);
+
         var discounts = productDiscountResponses
             .Where(x => x.ProductDiscount is not null)
             .Select(x => x.ProductDiscount);
@@ -163,7 +172,7 @@ public sealed class CommandService
 
     private static string FormatDiscountMessage(ProductDiscount? discount)
     {
-        var productName = discount.Product.Name;
+        var productName = discount!.Product.Name;
         var oldPrice = discount.OldPrice?.ToString("C") ?? "N/A";
         var newPrice = discount.NewPrice.ToString("C");
         var discountMessage = discount.DiscountMessage;
@@ -172,6 +181,49 @@ public sealed class CommandService
         discountMessage = System.Net.WebUtility.HtmlEncode(discountMessage);
 
         return $"<b>{productName}</b>\nOld Price: {oldPrice}\nNew Price: {newPrice}\nDiscount: {discountMessage}";
+    }
+
+    private static StringBuilder NotifyOfFailedRequests(IEnumerable<ProductDiscountResponse> productDiscountResponses)
+    {
+        var discountResponses = productDiscountResponses as ProductDiscountResponse[] ?? productDiscountResponses.ToArray();
+
+        var failedRequests = discountResponses
+            .Where(x => !x.ProductResponse.IsCached)
+            .Where(x => x.ProductResponse.StatusCode != HttpStatusCode.OK || x.ProductResponse.HasFailed)
+            .ToArray();
+
+        var totalFailedRequests = failedRequests.Length;
+        var totalRequests = discountResponses.Length;
+        var sb = new StringBuilder($"Total Requests: {totalRequests}, Total Failed: {totalFailedRequests}\n\n");
+
+        if (!failedRequests.Any()) return sb;
+        {
+            var groupedByStore = failedRequests.GroupBy(x => x.ProductResponse.Product.StoreName);
+
+            foreach (var storeGroup in groupedByStore)
+            {
+                sb.AppendLine($"Store: {storeGroup.Key}");
+
+                var groupedByStatusCode = storeGroup.GroupBy(x => x.ProductResponse.StatusCode);
+                foreach (var statusCodeGroup in groupedByStatusCode)
+                {
+                    sb.AppendLine($"- Status Code: {statusCodeGroup.Key}, Count: {statusCodeGroup.Count()}");
+
+                    foreach (var productDiscountResponse in statusCodeGroup.Take(5))
+                    {
+                        var product = productDiscountResponse.ProductResponse.Product;
+                        sb.AppendLine($"  - Product ID: {product.Id}, Name: {product.Name}");
+                    }
+                    if (statusCodeGroup.Count() > 5)
+                    {
+                        sb.AppendLine($"  ...and {statusCodeGroup.Count() - 5} more.");
+                    }
+                }
+                sb.AppendLine();
+            }
+        }
+
+        return sb;
     }
 
     private static async Task Commands(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
